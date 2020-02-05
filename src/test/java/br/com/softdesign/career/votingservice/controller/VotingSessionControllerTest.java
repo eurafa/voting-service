@@ -114,6 +114,26 @@ public class VotingSessionControllerTest {
     }
 
     @Test
+    public void computeMemberVoteFailureAlreadyVoted() {
+        // Given
+        final String memberId = "memberId";
+        final String sessionId = "sessionId";
+        final MemberVoteTO memberVoteTO = new MemberVoteTO(memberId, Vote.YES);
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(() -> new MemberVoteAlreadyComputedException(memberId, sessionId)));
+
+        // When
+        final WebTestClient.ResponseSpec response = webTestClient.patch()
+                .uri(VotingSessionController.URL_PATTERN + "/" + sessionId + "/vote")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .body(Mono.just(memberVoteTO), MemberVoteTO.class)
+                .exchange();
+
+        // Then
+        response.expectStatus().isBadRequest();
+    }
+
+    @Test
     public void computeMemberVoteFailureSessionNotFound() {
         // Given
         final String sessionId = "sessionId";
