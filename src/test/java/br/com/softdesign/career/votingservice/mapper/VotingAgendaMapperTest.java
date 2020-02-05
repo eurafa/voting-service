@@ -42,10 +42,10 @@ class VotingAgendaMapperTest {
         // Given
 
         // When
-        final Throwable votingAgenda = Assertions.catchThrowable(() -> VotingAgendaMapper.toModel(null));
+        final Throwable throwable = Assertions.catchThrowable(() -> VotingAgendaMapper.toModel(null));
 
         // Then
-        assertThat(votingAgenda).isInstanceOf(NullPointerException.class);
+        assertThat(throwable).isInstanceOf(NullPointerException.class);
     }
 
 }
