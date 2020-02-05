@@ -6,6 +6,7 @@ import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
 import br.com.softdesign.career.votingservice.enums.Vote;
 import br.com.softdesign.career.votingservice.exception.UnfinishedVotingSessionException;
 import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.exception.VotingSessionResultsNotFoundException;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionResultMapper;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionResultRepository;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -82,7 +84,7 @@ public class VotingSessionResultServiceTest {
     @Test
     void computeVotesFailureSessionNotFound() {
         // Given
-        given(votingSessionRepository.findById(anyString())).willReturn(Mono.error(new VotingSessionNotFoundException()));
+        given(votingSessionRepository.findById(anyString())).willReturn(Mono.error(VotingSessionNotFoundException::new));
 
         // When
         final Mono<VotingSessionResult> votingSessionMono = service.computeVotes("sessionId");
@@ -108,6 +110,37 @@ public class VotingSessionResultServiceTest {
         // Then
         StepVerifier.create(votingSessionMono)
                 .expectError(UnfinishedVotingSessionException.class)
+                .verify();
+    }
+
+    @Test
+    void getResults() {
+        // Given
+        final String sessionId = "sessionId";
+        final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, Collections.emptyMap());
+        given(repository.findById(sessionId)).willReturn(Mono.just(votingSessionResult));
+
+        // When
+        final Mono<VotingSessionResult> votingSessionResultMono = service.getResults(sessionId);
+
+        // Then
+        StepVerifier.create(votingSessionResultMono)
+                .expectNext(votingSessionResult)
+                .verifyComplete();
+    }
+
+    @Test
+    void getResultsFailureNotFound() {
+        // Given
+        final String sessionId = "sessionId";
+        given(repository.findById(sessionId)).willReturn(Mono.error(VotingSessionResultsNotFoundException::new));
+
+        // When
+        final Mono<VotingSessionResult> votingSessionResultMono = service.getResults(sessionId);
+
+        // Then
+        StepVerifier.create(votingSessionResultMono)
+                .expectError(VotingSessionResultsNotFoundException.class)
                 .verify();
     }
 

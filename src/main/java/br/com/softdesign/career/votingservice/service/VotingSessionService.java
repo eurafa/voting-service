@@ -36,7 +36,7 @@ public class VotingSessionService {
         final Mono<VotingAgenda> votingAgendaMono = agendaRepository.findById(votingSession.getAgendaId());
         return votingAgendaMono
                 .flatMap(votingAgenda -> this.repository.save(votingSession))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new VotingAgendaNotFoundException())));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingAgendaNotFoundException::new)));
     }
 
     public Mono<VotingSession> computeMemberVote(final String votingSessionId, final MemberVote memberVote) {
@@ -44,7 +44,7 @@ public class VotingSessionService {
         return votingSessionMono
                 .handle((VotingSession votingSession, SynchronousSink<VotingSession> sink) -> computeMemberVoteHandler(votingSession, memberVote, sink))
                 .flatMap(votingSession -> this.repository.save(VotingSessionMapper.pushMemberVote(votingSession, memberVote)))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new VotingSessionNotFoundException())));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingSessionNotFoundException::new)));
     }
 
     private void computeMemberVoteHandler(final VotingSession votingSession, final MemberVote memberVote, final SynchronousSink<VotingSession> sink) {

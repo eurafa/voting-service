@@ -4,6 +4,7 @@ import br.com.softdesign.career.votingservice.domain.VotingSession;
 import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
 import br.com.softdesign.career.votingservice.exception.UnfinishedVotingSessionException;
 import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.exception.VotingSessionResultsNotFoundException;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionResultMapper;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionResultRepository;
@@ -25,12 +26,17 @@ public class VotingSessionResultService {
         this.votingSessionRepository = votingSessionRepository;
     }
 
+    public Mono<VotingSessionResult> getResults(final String votingSessionId) {
+        return this.repository.findById(votingSessionId)
+                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingSessionResultsNotFoundException::new)));
+    }
+
     public Mono<VotingSessionResult> computeVotes(final String votingSessionId) {
         final Mono<VotingSession> votingSessionMono = this.votingSessionRepository.findById(votingSessionId);
         return votingSessionMono
                 .handle(this::computeVotesHandler)
                 .flatMap(votingSession -> this.repository.save(VotingSessionResultMapper.toModel(votingSession)))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(new VotingSessionNotFoundException())));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingSessionNotFoundException::new)));
     }
 
     private void computeVotesHandler(final VotingSession votingSession, final SynchronousSink<VotingSession> sink) {

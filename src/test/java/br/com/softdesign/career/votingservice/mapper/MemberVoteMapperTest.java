@@ -25,7 +25,7 @@ class MemberVoteMapperTest {
     @Test
     void toModel() {
         // Given
-        final MemberVoteTO memberVoteTO = new MemberVoteTO("sessionId", "memberId", Vote.YES);
+        final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
 
         // When
         final MemberVote memberVote = MemberVoteMapper.toModel(memberVoteTO);

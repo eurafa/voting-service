@@ -96,7 +96,7 @@ public class VotingSessionServiceTest {
     void computeMemberVoteFailureSessionNotFound() {
         // Given
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
-        given(repository.findById(anyString())).willReturn(Mono.error(new VotingSessionNotFoundException()));
+        given(repository.findById(anyString())).willReturn(Mono.error(VotingSessionNotFoundException::new));
 
         // When
         final Mono<VotingSession> votingSessionMono = service.computeMemberVote("sessionId", memberVote);

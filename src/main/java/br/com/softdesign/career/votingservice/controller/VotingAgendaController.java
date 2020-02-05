@@ -3,10 +3,11 @@ package br.com.softdesign.career.votingservice.controller;
 import br.com.softdesign.career.votingservice.mapper.VotingAgendaMapper;
 import br.com.softdesign.career.votingservice.service.VotingAgendaService;
 import br.com.softdesign.career.votingservice.to.VotingAgendaTO;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -14,7 +15,6 @@ import javax.validation.Valid;
 import java.net.URI;
 
 @RestController
-@RequestMapping(value = VotingAgendaController.URL_PATTERN)
 public class VotingAgendaController {
 
     public static final String URL_PATTERN = "/voting-agenda";
@@ -25,8 +25,11 @@ public class VotingAgendaController {
         this.service = service;
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<?>> createVotingAgenda(@Valid @RequestBody final VotingAgendaTO votingAgendaTO) {
+    @ApiOperation(value = "Criar pauta", notes = "Operação para criar uma pauta para votação na assembleia")
+    @PostMapping(VotingAgendaController.URL_PATTERN)
+    public Mono<ResponseEntity<?>> createVotingAgenda(
+            @ApiParam("Dados de entrada da pauta")
+            @Valid @RequestBody final VotingAgendaTO votingAgendaTO) {
         return service.createVotingAgenda(VotingAgendaMapper.toModel(votingAgendaTO))
                 .map(votingAgenda -> ResponseEntity
                         .created(URI.create(URL_PATTERN + "/" + votingAgenda.getId()))
