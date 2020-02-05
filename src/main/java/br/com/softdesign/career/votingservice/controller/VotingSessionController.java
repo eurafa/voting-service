@@ -60,4 +60,12 @@ public class VotingSessionController {
         return resultService.computeVotes(sessionId);
     }
 
+    @ApiOperation(value = "Fechamento do resultado da sessão", notes = "Operação para análise dos votos da sessão de uma pauta da assembleia")
+    @GetMapping(URL_PATTERN + "/{session-id}/vote/result")
+    public Mono<VotingSessionResult> getResults(
+            @ApiParam(value = "Identificador da sessão de uma pauta", required = true)
+            @PathVariable("session-id") final String sessionId) {
+        return resultService.getResults(sessionId);
+    }
+
 }

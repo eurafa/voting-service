@@ -4,10 +4,7 @@ import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
 import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
 import br.com.softdesign.career.votingservice.enums.Vote;
-import br.com.softdesign.career.votingservice.exception.UnfinishedVotingSessionException;
-import br.com.softdesign.career.votingservice.exception.VotingAgendaNotFoundException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionClosedException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.mapper.MemberVoteMapper;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionMapper;
 import br.com.softdesign.career.votingservice.service.VotingSessionResultService;
@@ -81,7 +78,7 @@ public class VotingSessionControllerTest {
         // Given
         final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId", 1);
         final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
-        given(service.openVotingSession(any())).willReturn(Mono.error(new VotingAgendaNotFoundException()));
+        given(service.openVotingSession(any())).willReturn(Mono.error(VotingAgendaNotFoundException::new));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.post()
@@ -121,7 +118,7 @@ public class VotingSessionControllerTest {
         // Given
         final String sessionId = "sessionId";
         final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
-        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(new VotingSessionNotFoundException()));
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(VotingSessionNotFoundException::new));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.patch()
@@ -140,7 +137,7 @@ public class VotingSessionControllerTest {
         // Given
         final String sessionId = "sessionId";
         final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
-        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(new VotingSessionClosedException()));
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(VotingSessionClosedException::new));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.patch()
@@ -179,13 +176,47 @@ public class VotingSessionControllerTest {
     public void computeVotesFailureUnfinished() {
         // Given
         final String sessionId = "sessionId";
-        given(resultService.computeVotes(anyString())).willReturn(Mono.error(new UnfinishedVotingSessionException()));
+        given(resultService.computeVotes(anyString())).willReturn(Mono.error(UnfinishedVotingSessionException::new));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.post()
                 .uri(VotingSessionController.URL_PATTERN + "/" + sessionId + "/vote/result")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
+                .exchange();
+
+        // Then
+        response.expectStatus().isBadRequest();
+    }
+
+    @Test
+    public void getResults() {
+        // Given
+        final String sessionId = "sessionId";
+        final Map<String, Long> votes = Arrays.asList(Vote.values()).stream().collect(Collectors.toMap(Object::toString, v -> 1L));
+        final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, votes);
+        given(resultService.getResults(anyString())).willReturn(Mono.just(votingSessionResult));
+
+        // When
+        final WebTestClient.ResponseSpec response = webTestClient.get()
+                .uri(VotingSessionController.URL_PATTERN + "/" + sessionId + "/vote/result")
+                .exchange();
+
+        // Then
+        response
+                .expectStatus().isOk()
+                .expectBody(VotingSessionResult.class);
+    }
+
+    @Test
+    public void getResultsFailureNotFound() {
+        // Given
+        final String sessionId = "sessionId";
+        given(resultService.getResults(anyString())).willReturn(Mono.error(VotingSessionResultsNotFoundException::new));
+
+        // When
+        final WebTestClient.ResponseSpec response = webTestClient.get()
+                .uri(VotingSessionController.URL_PATTERN + "/" + sessionId + "/vote/result")
                 .exchange();
 
         // Then

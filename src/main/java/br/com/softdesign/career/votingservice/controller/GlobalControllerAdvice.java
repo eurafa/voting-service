@@ -34,4 +34,9 @@ public class GlobalControllerAdvice {
         return Mono.just(ResponseEntity.badRequest().body(ex.getMessage()));
     }
 
+    @ExceptionHandler(value = VotingSessionResultsNotFoundException.class)
+    protected Mono<ResponseEntity<?>> handleException(final VotingSessionResultsNotFoundException ex) {
+        return Mono.just(ResponseEntity.badRequest().body(ex.getMessage()));
+    }
+
 }
