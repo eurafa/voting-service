@@ -2,9 +2,9 @@ package br.com.softdesign.career.votingservice.to;
 
 public class VotingAgendaTO {
 
-    private final String title;
+    private String title;
 
-    private final String description;
+    private String description;
 
     public VotingAgendaTO(final String title, final String description) {
         this.title = title;
