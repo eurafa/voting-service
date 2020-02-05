@@ -5,9 +5,12 @@ import br.com.softdesign.career.votingservice.to.OpenVotingSessionTO;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public class VotingSessionMapper {
+
+    static final Integer DEFAULT_DURATION = 1;
 
     public static VotingSession toModel(final OpenVotingSessionTO to) {
         Objects.requireNonNull(to, "Transfer Object cannot be null");
@@ -15,7 +18,7 @@ public class VotingSessionMapper {
         return new VotingSession(UUID.randomUUID().toString(),
                 to.getAgendaId(),
                 now,
-                now.plusMinutes(to.getDurationInMinutes()));
+                now.plusMinutes(Optional.ofNullable(to.getDurationInMinutes()).orElse(DEFAULT_DURATION)));
     }
 
 }

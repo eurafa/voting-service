@@ -39,6 +39,23 @@ class VotingSessionMapperTest {
     }
 
     @Test
+    void toModelDefaultDuration() {
+        // Given
+        final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId");
+
+        // When
+        final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
+
+        // Then
+        assertThat(votingSession).isNotNull();
+        assertThat(votingSession.getId()).isNotNull();
+        assertThat(votingSession.getAgendaId()).isEqualTo(openVotingSessionTO.getAgendaId());
+        assertThat(votingSession.getStart()).isNotNull();
+        assertThat(votingSession.getEnd()).isNotNull();
+        assertThat(votingSession.getEnd()).isEqualTo(votingSession.getStart().plusMinutes(VotingSessionMapper.DEFAULT_DURATION));
+    }
+
+    @Test
     void toModelFailure() {
         // Given
 

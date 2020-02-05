@@ -1,12 +1,14 @@
 package br.com.softdesign.career.votingservice.domain;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document
+@Document(collection = "voting-agenda")
 public class VotingAgenda {
 
+    @Id
     private final String id;
 
     private final String title;
