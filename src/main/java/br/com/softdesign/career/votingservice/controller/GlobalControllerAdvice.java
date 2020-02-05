@@ -1,9 +1,6 @@
 package br.com.softdesign.career.votingservice.controller;
 
-import br.com.softdesign.career.votingservice.exception.UnfinishedVotingSessionException;
-import br.com.softdesign.career.votingservice.exception.VotingAgendaNotFoundException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionClosedException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.exception.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +21,11 @@ public class GlobalControllerAdvice {
 
     @ExceptionHandler(value = VotingSessionClosedException.class)
     protected Mono<ResponseEntity<?>> handleException(final VotingSessionClosedException ex) {
+        return Mono.just(ResponseEntity.badRequest().body(ex.getMessage()));
+    }
+
+    @ExceptionHandler(value = MemberVoteAlreadyComputedException.class)
+    protected Mono<ResponseEntity<?>> handleException(final MemberVoteAlreadyComputedException ex) {
         return Mono.just(ResponseEntity.badRequest().body(ex.getMessage()));
     }
 
