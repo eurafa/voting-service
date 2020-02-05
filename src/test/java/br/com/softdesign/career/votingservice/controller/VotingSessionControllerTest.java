@@ -76,9 +76,9 @@ public class VotingSessionControllerTest {
     @Test
     public void openVotingSessionFailureAgendaNotFound() {
         // Given
-        final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId", 1);
-        final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
-        given(service.openVotingSession(any())).willReturn(Mono.error(VotingAgendaNotFoundException::new));
+        final String agendaId = "agendaId";
+        final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO(agendaId, 1);
+        given(service.openVotingSession(any())).willReturn(Mono.error(() -> new VotingAgendaNotFoundException(agendaId)));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.post()
@@ -118,7 +118,7 @@ public class VotingSessionControllerTest {
         // Given
         final String sessionId = "sessionId";
         final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
-        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(VotingSessionNotFoundException::new));
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(() -> new VotingSessionNotFoundException(sessionId)));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.patch()
@@ -137,7 +137,7 @@ public class VotingSessionControllerTest {
         // Given
         final String sessionId = "sessionId";
         final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
-        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(VotingSessionClosedException::new));
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(() -> new VotingSessionClosedException(sessionId)));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.patch()
@@ -176,7 +176,7 @@ public class VotingSessionControllerTest {
     public void computeVotesFailureUnfinished() {
         // Given
         final String sessionId = "sessionId";
-        given(resultService.computeVotes(anyString())).willReturn(Mono.error(UnfinishedVotingSessionException::new));
+        given(resultService.computeVotes(anyString())).willReturn(Mono.error(() -> new UnfinishedVotingSessionException(sessionId)));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.post()
@@ -212,7 +212,7 @@ public class VotingSessionControllerTest {
     public void getResultsFailureNotFound() {
         // Given
         final String sessionId = "sessionId";
-        given(resultService.getResults(anyString())).willReturn(Mono.error(VotingSessionResultsNotFoundException::new));
+        given(resultService.getResults(anyString())).willReturn(Mono.error(() -> new VotingSessionResultsNotFoundException(sessionId)));
 
         // When
         final WebTestClient.ResponseSpec response = webTestClient.get()

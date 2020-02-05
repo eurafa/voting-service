@@ -33,7 +33,7 @@ public class VotingSessionResultService {
     public Mono<VotingSessionResult> getResults(final String votingSessionId) {
         log.info("Getting results for session {}", votingSessionId);
         return this.repository.findById(votingSessionId)
-                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingSessionResultsNotFoundException::new)));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionResultsNotFoundException(votingSessionId))));
     }
 
     public Mono<VotingSessionResult> computeVotes(final String votingSessionId) {
@@ -42,13 +42,13 @@ public class VotingSessionResultService {
         return votingSessionMono
                 .handle(this::computeVotesHandler)
                 .flatMap(votingSession -> this.repository.save(VotingSessionResultMapper.toModel(votingSession)))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingSessionNotFoundException::new)));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
     private void computeVotesHandler(final VotingSession votingSession, final SynchronousSink<VotingSession> sink) {
         final boolean isOpened = LocalDateTime.now().isBefore(votingSession.getEnd());
         if (isOpened) {
-            sink.error(new UnfinishedVotingSessionException());
+            sink.error(new UnfinishedVotingSessionException(votingSession.getId(), votingSession.getEnd()));
         } else {
             sink.next(votingSession);
         }

@@ -41,7 +41,7 @@ public class VotingSessionService {
         final Mono<VotingAgenda> votingAgendaMono = agendaRepository.findById(votingSession.getAgendaId());
         return votingAgendaMono
                 .flatMap(votingAgenda -> this.repository.save(votingSession))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingAgendaNotFoundException::new)));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingAgendaNotFoundException(votingSession.getAgendaId()))));
     }
 
     public Mono<VotingSession> computeMemberVote(final String votingSessionId, final MemberVote memberVote) {
@@ -50,7 +50,7 @@ public class VotingSessionService {
         return votingSessionMono
                 .handle((VotingSession votingSession, SynchronousSink<VotingSession> sink) -> computeMemberVoteHandler(votingSession, memberVote, sink))
                 .flatMap(votingSession -> this.repository.save(VotingSessionMapper.pushMemberVote(votingSession, memberVote)))
-                .switchIfEmpty(Mono.defer(() -> Mono.error(VotingSessionNotFoundException::new)));
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
     private void computeMemberVoteHandler(final VotingSession votingSession, final MemberVote memberVote, final SynchronousSink<VotingSession> sink) {
@@ -59,12 +59,12 @@ public class VotingSessionService {
             final Set<MemberVote> memberVotes = Optional.ofNullable(votingSession.getVotes()).orElse(Collections.emptySet());
             final Set<String> membersAlreadyVoted = memberVotes.stream().map(MemberVote::getMemberId).collect(Collectors.toSet());
             if (membersAlreadyVoted.contains(memberVote.getMemberId())) {
-                sink.error(new MemberVoteAlreadyComputedException());
+                sink.error(new MemberVoteAlreadyComputedException(memberVote.getMemberId(), votingSession.getId()));
             } else {
                 sink.next(votingSession);
             }
         } else {
-            sink.error(new VotingSessionClosedException());
+            sink.error(new VotingSessionClosedException(votingSession.getId(), votingSession.getEnd()));
         }
     }
 

@@ -95,11 +95,12 @@ public class VotingSessionServiceTest {
     @Test
     void computeMemberVoteFailureSessionNotFound() {
         // Given
+        final String sessionId = "sessionId";
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
-        given(repository.findById(anyString())).willReturn(Mono.error(VotingSessionNotFoundException::new));
+        given(repository.findById(anyString())).willReturn(Mono.error(() -> new VotingSessionNotFoundException(sessionId)));
 
         // When
-        final Mono<VotingSession> votingSessionMono = service.computeMemberVote("sessionId", memberVote);
+        final Mono<VotingSession> votingSessionMono = service.computeMemberVote(sessionId, memberVote);
 
         // Then
         StepVerifier.create(votingSessionMono)
