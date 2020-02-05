@@ -1,12 +1,13 @@
 package br.com.softdesign.career.votingservice.controller;
 
-import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
 import br.com.softdesign.career.votingservice.mapper.MemberVoteMapper;
+import br.com.softdesign.career.votingservice.mapper.ResultsTOMapper;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionMapper;
 import br.com.softdesign.career.votingservice.service.VotingSessionResultService;
 import br.com.softdesign.career.votingservice.service.VotingSessionService;
 import br.com.softdesign.career.votingservice.to.MemberVoteTO;
 import br.com.softdesign.career.votingservice.to.OpenVotingSessionTO;
+import br.com.softdesign.career.votingservice.to.ResultsTO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class VotingSessionController {
             @ApiParam("Dados de entrada da abertura de sessão")
             @Valid @RequestBody final OpenVotingSessionTO openVotingSessionTO) {
         log.debug("Received data for open session for agenda {}", openVotingSessionTO.getAgendaId());
-        return service.openVotingSession(VotingSessionMapper.toModel(openVotingSessionTO))
+        return service.openVotingSession(VotingSessionMapper.map(openVotingSessionTO))
                 .map(votingAgenda -> ResponseEntity
                         .created(URI.create(URL_PATTERN + "/" + votingAgenda.getId()))
                         .build());
@@ -54,26 +55,28 @@ public class VotingSessionController {
             @ApiParam("Entrada de dados do voto de um membro")
             @Valid @RequestBody final MemberVoteTO memberVoteTO) {
         log.debug("Received data for compute a vote for member {} and session {}", memberVoteTO.getMemberId(), sessionId);
-        return service.computeMemberVote(sessionId, MemberVoteMapper.toModel(memberVoteTO))
+        return service.computeMemberVote(sessionId, MemberVoteMapper.map(memberVoteTO))
                 .map(votingSession -> ResponseEntity.noContent().build());
     }
 
     @ApiOperation(value = "Fechamento do resultado da sessão", notes = "Operação para análise dos votos da sessão de uma pauta da assembleia")
     @PostMapping(URL_PATTERN + "/{session-id}/vote/result")
-    public Mono<VotingSessionResult> computeVotes(
+    public Mono<ResultsTO> computeVotes(
             @ApiParam(value = "Identificador da sessão aberta de uma pauta", required = true)
             @PathVariable("session-id") final String sessionId) {
         log.debug("Received call for compute votes for session {}", sessionId);
-        return resultService.computeVotes(sessionId);
+        return resultService.computeVotes(sessionId)
+                .map(res -> ResultsTOMapper.map(sessionId, res));
     }
 
     @ApiOperation(value = "Fechamento do resultado da sessão", notes = "Operação para análise dos votos da sessão de uma pauta da assembleia")
     @GetMapping(URL_PATTERN + "/{session-id}/vote/result")
-    public Mono<VotingSessionResult> getResults(
+    public Mono<ResultsTO> getResults(
             @ApiParam(value = "Identificador da sessão de uma pauta", required = true)
             @PathVariable("session-id") final String sessionId) {
         log.debug("Received call for get votes result for session {}", sessionId);
-        return resultService.getResults(sessionId);
+        return resultService.getResults(sessionId)
+                .map(res -> ResultsTOMapper.map(sessionId, res));
     }
 
 }

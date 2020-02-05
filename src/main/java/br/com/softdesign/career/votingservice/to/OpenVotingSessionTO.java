@@ -3,7 +3,7 @@ package br.com.softdesign.career.votingservice.to;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel("Abertura de sessão de uma pauta")
+@ApiModel(description = "Abertura de sessão de uma pauta")
 public class OpenVotingSessionTO {
 
     @ApiModelProperty("Identificador da pauta")

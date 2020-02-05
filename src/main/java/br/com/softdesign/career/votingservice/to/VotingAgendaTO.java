@@ -3,7 +3,7 @@ package br.com.softdesign.career.votingservice.to;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel("Pauta de assembleia")
+@ApiModel(description = "Pauta de assembleia")
 public class VotingAgendaTO {
 
     @ApiModelProperty("Titulo da pauta")

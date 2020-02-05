@@ -30,12 +30,12 @@ class VotingSessionMapperTest {
     }
 
     @Test
-    void toModel() {
+    void map() {
         // Given
         final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId", 1);
 
         // When
-        final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
+        final VotingSession votingSession = VotingSessionMapper.map(openVotingSessionTO);
 
         // Then
         assertThat(votingSession).isNotNull();
@@ -47,12 +47,12 @@ class VotingSessionMapperTest {
     }
 
     @Test
-    void toModelDefaultDuration() {
+    void mapDefaultDuration() {
         // Given
         final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId");
 
         // When
-        final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
+        final VotingSession votingSession = VotingSessionMapper.map(openVotingSessionTO);
 
         // Then
         assertThat(votingSession).isNotNull();
@@ -64,11 +64,11 @@ class VotingSessionMapperTest {
     }
 
     @Test
-    void toModelFailure() {
+    void mapFailure() {
         // Given
 
         // When
-        final Throwable throwable = Assertions.catchThrowable(() -> VotingSessionMapper.toModel(null));
+        final Throwable throwable = Assertions.catchThrowable(() -> VotingSessionMapper.map(null));
 
         // Then
         assertThat(throwable).isInstanceOf(NullPointerException.class);
@@ -79,7 +79,7 @@ class VotingSessionMapperTest {
         // Given
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
         final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId", 1);
-        final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
+        final VotingSession votingSession = VotingSessionMapper.map(openVotingSessionTO);
 
         // When
         final VotingSession votingSessionWithMemberVote = VotingSessionMapper.pushMemberVote(votingSession, memberVote);

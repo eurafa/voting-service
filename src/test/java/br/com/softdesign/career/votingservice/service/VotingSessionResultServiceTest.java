@@ -47,7 +47,7 @@ public class VotingSessionResultServiceTest {
                 new MemberVote("member3", Vote.NO.name(), LocalDateTime.now())
         ).collect(Collectors.toSet());
         final VotingSession votingSession = new VotingSession(sessionId, agendaId, start, end, votes);
-        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.toModel(votingSession);
+        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.map(votingSession);
         given(votingSessionRepository.findById(sessionId)).willReturn(Mono.just(votingSession));
         given(repository.save(any())).willReturn(Mono.just(votingSessionResult));
 
@@ -68,7 +68,7 @@ public class VotingSessionResultServiceTest {
         final LocalDateTime start = LocalDateTime.now().minusMinutes(1);
         final LocalDateTime end = LocalDateTime.now();
         final VotingSession votingSession = new VotingSession(sessionId, agendaId, start, end);
-        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.toModel(votingSession);
+        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.map(votingSession);
         given(votingSessionRepository.findById(sessionId)).willReturn(Mono.just(votingSession));
         given(repository.save(any())).willReturn(Mono.just(votingSessionResult));
 

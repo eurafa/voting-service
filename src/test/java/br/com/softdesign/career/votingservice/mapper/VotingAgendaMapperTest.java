@@ -22,12 +22,12 @@ class VotingAgendaMapperTest {
     }
 
     @Test
-    void toModel() {
+    void map() {
         // Given
         final VotingAgendaTO votingAgendaTO = new VotingAgendaTO("Title", "Description");
 
         // When
-        final VotingAgenda votingAgenda = VotingAgendaMapper.toModel(votingAgendaTO);
+        final VotingAgenda votingAgenda = VotingAgendaMapper.map(votingAgendaTO);
 
         // Then
         assertThat(votingAgenda).isNotNull();
@@ -38,11 +38,11 @@ class VotingAgendaMapperTest {
     }
 
     @Test
-    void toModelFailure() {
+    void mapFailure() {
         // Given
 
         // When
-        final Throwable throwable = Assertions.catchThrowable(() -> VotingAgendaMapper.toModel(null));
+        final Throwable throwable = Assertions.catchThrowable(() -> VotingAgendaMapper.map(null));
 
         // Then
         assertThat(throwable).isInstanceOf(NullPointerException.class);

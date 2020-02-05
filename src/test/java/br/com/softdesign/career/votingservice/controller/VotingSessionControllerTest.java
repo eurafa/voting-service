@@ -6,11 +6,13 @@ import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
 import br.com.softdesign.career.votingservice.enums.Vote;
 import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.mapper.MemberVoteMapper;
+import br.com.softdesign.career.votingservice.mapper.ResultsTOMapper;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionMapper;
 import br.com.softdesign.career.votingservice.service.VotingSessionResultService;
 import br.com.softdesign.career.votingservice.service.VotingSessionService;
 import br.com.softdesign.career.votingservice.to.MemberVoteTO;
 import br.com.softdesign.career.votingservice.to.OpenVotingSessionTO;
+import br.com.softdesign.career.votingservice.to.ResultsTO;
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +58,7 @@ public class VotingSessionControllerTest {
     public void openVotingSession() {
         // Given
         final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId", 1);
-        final VotingSession votingSession = VotingSessionMapper.toModel(openVotingSessionTO);
+        final VotingSession votingSession = VotingSessionMapper.map(openVotingSessionTO);
         given(service.openVotingSession(any())).willReturn(Mono.just(votingSession));
 
         // When
@@ -97,7 +99,7 @@ public class VotingSessionControllerTest {
         // Given
         final String sessionId = "sessionId";
         final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
-        final MemberVote memberVote = MemberVoteMapper.toModel(memberVoteTO);
+        final MemberVote memberVote = MemberVoteMapper.map(memberVoteTO);
         final VotingSession votingSession = new VotingSession(sessionId, "agendaId", LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusMinutes(1), Collections.singleton(memberVote));
         given(service.computeMemberVote(anyString(), any())).willReturn(Mono.just(votingSession));
 
@@ -177,6 +179,7 @@ public class VotingSessionControllerTest {
         final String sessionId = "sessionId";
         final Map<String, Long> votes = Arrays.asList(Vote.values()).stream().collect(Collectors.toMap(Object::toString, v -> 1L));
         final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, votes);
+        final ResultsTO resultsTO = ResultsTOMapper.map(sessionId, votingSessionResult);
         given(resultService.computeVotes(anyString())).willReturn(Mono.just(votingSessionResult));
 
         // When
@@ -189,7 +192,8 @@ public class VotingSessionControllerTest {
         // Then
         response
                 .expectStatus().isOk()
-                .expectBody(VotingSessionResult.class);
+                .expectBody(ResultsTO.class)
+                .consumeWith(body -> assertThat(body.getResponseBody()).isEqualToComparingFieldByField(resultsTO));
     }
 
     @Test
@@ -215,6 +219,7 @@ public class VotingSessionControllerTest {
         final String sessionId = "sessionId";
         final Map<String, Long> votes = Arrays.asList(Vote.values()).stream().collect(Collectors.toMap(Object::toString, v -> 1L));
         final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, votes);
+        final ResultsTO resultsTO = ResultsTOMapper.map(sessionId, votingSessionResult);
         given(resultService.getResults(anyString())).willReturn(Mono.just(votingSessionResult));
 
         // When
@@ -225,7 +230,8 @@ public class VotingSessionControllerTest {
         // Then
         response
                 .expectStatus().isOk()
-                .expectBody(VotingSessionResult.class);
+                .expectBody(ResultsTO.class)
+                .consumeWith(body -> assertThat(body.getResponseBody()).isEqualToComparingFieldByField(resultsTO));
     }
 
     @Test

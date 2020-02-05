@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class VotingSessionResultMapper {
 
-    public static VotingSessionResult toModel(final VotingSession votingSession) {
+    public static VotingSessionResult map(final VotingSession votingSession) {
         final Map<String, Long> result = votingSession.getVotes().stream().collect(Collectors.groupingBy(MemberVote::getVote, Collectors.counting()));
         return new VotingSessionResult(votingSession.getId(), result);
     }

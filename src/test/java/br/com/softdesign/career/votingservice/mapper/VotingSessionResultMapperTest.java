@@ -30,7 +30,7 @@ class VotingSessionResultMapperTest {
     }
 
     @Test
-    void toModel() {
+    void map() {
         // Given
         final LocalDateTime now = LocalDateTime.now();
         final int yesTotalVotes = 10;
@@ -45,7 +45,7 @@ class VotingSessionResultMapperTest {
         final VotingSession votingSession = new VotingSession("sessionId", "agendaId", now, now.plusMinutes(1), votes);
 
         // When
-        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.toModel(votingSession);
+        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.map(votingSession);
 
         // Then
         assertThat(votingSessionResult).isNotNull();

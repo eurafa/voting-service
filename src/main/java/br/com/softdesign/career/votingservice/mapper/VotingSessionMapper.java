@@ -13,7 +13,7 @@ public class VotingSessionMapper {
 
     static final Integer DEFAULT_DURATION = 1;
 
-    public static VotingSession toModel(final OpenVotingSessionTO to) {
+    public static VotingSession map(final OpenVotingSessionTO to) {
         Objects.requireNonNull(to, "Transfer Object cannot be null");
         final LocalDateTime now = LocalDateTime.now();
         return new VotingSession(UUID.randomUUID().toString(),
