@@ -10,15 +10,12 @@ public class VotingAgendaService {
 
     private final VotingAgendaRepository repository;
 
-    private final VotingAgendaRepository reactiveRepository;
-
-    public VotingAgendaService(final VotingAgendaRepository repository, final VotingAgendaRepository reactiveRepository) {
+    public VotingAgendaService(final VotingAgendaRepository repository) {
         this.repository = repository;
-        this.reactiveRepository = reactiveRepository;
     }
 
     public Mono<VotingAgenda> createVotingAgenda(final VotingAgenda votingAgenda) {
-        return this.reactiveRepository.save(votingAgenda);
+        return this.repository.save(votingAgenda);
     }
 
 }
