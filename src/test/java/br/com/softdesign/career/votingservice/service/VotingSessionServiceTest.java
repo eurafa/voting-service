@@ -4,6 +4,7 @@ import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingAgenda;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
 import br.com.softdesign.career.votingservice.enums.Vote;
+import br.com.softdesign.career.votingservice.exception.MemberVoteAlreadyComputedException;
 import br.com.softdesign.career.votingservice.exception.VotingAgendaNotFoundException;
 import br.com.softdesign.career.votingservice.exception.VotingSessionClosedException;
 import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -93,15 +95,11 @@ public class VotingSessionServiceTest {
     @Test
     void computeMemberVoteFailureSessionNotFound() {
         // Given
-        final String sessionId = UUID.randomUUID().toString();
-        final LocalDateTime start = LocalDateTime.now();
-        final LocalDateTime end = LocalDateTime.now().plusMinutes(1);
-        final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end);
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
         given(repository.findById(anyString())).willReturn(Mono.error(new VotingSessionNotFoundException()));
 
         // When
-        final Mono<VotingSession> votingSessionMono = service.computeMemberVote(sessionId, memberVote);
+        final Mono<VotingSession> votingSessionMono = service.computeMemberVote("sessionId", memberVote);
 
         // Then
         StepVerifier.create(votingSessionMono)
@@ -125,6 +123,25 @@ public class VotingSessionServiceTest {
         // Then
         StepVerifier.create(votingSessionMono)
                 .expectError(VotingSessionClosedException.class)
+                .verify();
+    }
+
+    @Test
+    void computeMemberVoteFailureAlreadyVote() {
+        // Given
+        final String sessionId = UUID.randomUUID().toString();
+        final LocalDateTime start = LocalDateTime.now();
+        final LocalDateTime end = LocalDateTime.now().plusMinutes(1);
+        final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
+        final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end, Collections.singleton(memberVote));
+        given(repository.findById(anyString())).willReturn(Mono.just(votingSession));
+
+        // When
+        final Mono<VotingSession> votingSessionMono = service.computeMemberVote(sessionId, memberVote);
+
+        // Then
+        StepVerifier.create(votingSessionMono)
+                .expectError(MemberVoteAlreadyComputedException.class)
                 .verify();
     }
 
