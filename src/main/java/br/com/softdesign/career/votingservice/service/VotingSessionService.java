@@ -10,6 +10,8 @@ import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundExc
 import br.com.softdesign.career.votingservice.mapper.VotingSessionMapper;
 import br.com.softdesign.career.votingservice.repository.VotingAgendaRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
@@ -23,6 +25,8 @@ import java.util.stream.Collectors;
 @Service
 public class VotingSessionService {
 
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
+
     private final VotingSessionRepository repository;
 
     private final VotingAgendaRepository agendaRepository;
@@ -33,6 +37,7 @@ public class VotingSessionService {
     }
 
     public Mono<VotingSession> openVotingSession(final VotingSession votingSession) {
+        log.info("Open a session {} for agenda {}", votingSession.getId(), votingSession.getAgendaId());
         final Mono<VotingAgenda> votingAgendaMono = agendaRepository.findById(votingSession.getAgendaId());
         return votingAgendaMono
                 .flatMap(votingAgenda -> this.repository.save(votingSession))
@@ -40,6 +45,7 @@ public class VotingSessionService {
     }
 
     public Mono<VotingSession> computeMemberVote(final String votingSessionId, final MemberVote memberVote) {
+        log.info("Computing a member {} vote for session {}", memberVote.getMemberId(), votingSessionId);
         final Mono<VotingSession> votingSessionMono = repository.findById(votingSessionId);
         return votingSessionMono
                 .handle((VotingSession votingSession, SynchronousSink<VotingSession> sink) -> computeMemberVoteHandler(votingSession, memberVote, sink))
