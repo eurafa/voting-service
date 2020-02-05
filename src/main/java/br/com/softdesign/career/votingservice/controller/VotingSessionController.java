@@ -9,6 +9,8 @@ import br.com.softdesign.career.votingservice.to.MemberVoteTO;
 import br.com.softdesign.career.votingservice.to.OpenVotingSessionTO;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -18,6 +20,8 @@ import java.net.URI;
 
 @RestController
 public class VotingSessionController {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public static final String URL_PATTERN = "/voting-session";
 
@@ -35,6 +39,7 @@ public class VotingSessionController {
     public Mono<ResponseEntity<?>> openVotingSession(
             @ApiParam("Dados de entrada da abertura de sessão")
             @Valid @RequestBody final OpenVotingSessionTO openVotingSessionTO) {
+        log.debug("Received data for open session for agenda {}", openVotingSessionTO.getAgendaId());
         return service.openVotingSession(VotingSessionMapper.toModel(openVotingSessionTO))
                 .map(votingAgenda -> ResponseEntity
                         .created(URI.create(URL_PATTERN + "/" + votingAgenda.getId()))
@@ -48,6 +53,7 @@ public class VotingSessionController {
             @PathVariable("session-id") final String sessionId,
             @ApiParam("Entrada de dados do voto de um membro")
             @Valid @RequestBody final MemberVoteTO memberVoteTO) {
+        log.debug("Received data for compute a vote for member {} and session {}", memberVoteTO.getMemberId(), sessionId);
         return service.computeMemberVote(sessionId, MemberVoteMapper.toModel(memberVoteTO))
                 .map(votingSession -> ResponseEntity.noContent().build());
     }
@@ -57,6 +63,7 @@ public class VotingSessionController {
     public Mono<VotingSessionResult> computeVotes(
             @ApiParam(value = "Identificador da sessão aberta de uma pauta", required = true)
             @PathVariable("session-id") final String sessionId) {
+        log.debug("Received call for compute votes for session {}", sessionId);
         return resultService.computeVotes(sessionId);
     }
 
@@ -65,6 +72,7 @@ public class VotingSessionController {
     public Mono<VotingSessionResult> getResults(
             @ApiParam(value = "Identificador da sessão de uma pauta", required = true)
             @PathVariable("session-id") final String sessionId) {
+        log.debug("Received call for get votes result for session {}", sessionId);
         return resultService.getResults(sessionId);
     }
 
