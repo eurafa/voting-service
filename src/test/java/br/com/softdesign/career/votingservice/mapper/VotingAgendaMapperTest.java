@@ -10,6 +10,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 class VotingAgendaMapperTest {
 
     @Test
+    void testConstructor() {
+        // Given
+        final VotingAgendaMapper mapper;
+
+        // When
+        mapper = new VotingAgendaMapper();
+
+        // Then
+        assertThat(mapper).isNotNull();
+    }
+
+    @Test
     void toModel() {
         // Given
         final VotingAgendaTO votingAgendaTO = new VotingAgendaTO("Title", "Description");
