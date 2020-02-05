@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Set;
 
 @Document(collection = "voting-session")
 public class VotingSession {
@@ -17,11 +19,22 @@ public class VotingSession {
 
     private final LocalDateTime end;
 
+    private final Set<MemberVote> votes;
+
     public VotingSession(final String id, final String agendaId, final LocalDateTime start, final LocalDateTime end) {
         this.id = id;
         this.agendaId = agendaId;
         this.start = start;
         this.end = end;
+        this.votes = Collections.emptySet();
+    }
+
+    public VotingSession(final String id, final String agendaId, final LocalDateTime start, final LocalDateTime end, final Set<MemberVote> votes) {
+        this.id = id;
+        this.agendaId = agendaId;
+        this.start = start;
+        this.end = end;
+        this.votes = votes;
     }
 
     public String getId() {
@@ -38,6 +51,10 @@ public class VotingSession {
 
     public LocalDateTime getEnd() {
         return end;
+    }
+
+    public Set<MemberVote> getVotes() {
+        return votes;
     }
 
 }
