@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class MemberVoteMapper {
 
-    public static MemberVote toModel(final MemberVoteTO to) {
+    public static MemberVote map(final MemberVoteTO to) {
         Objects.requireNonNull(to, "Transfer Object cannot be null");
         return new MemberVote(
                 to.getMemberId(),

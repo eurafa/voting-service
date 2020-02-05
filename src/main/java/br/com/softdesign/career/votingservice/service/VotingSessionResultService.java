@@ -41,7 +41,7 @@ public class VotingSessionResultService {
         final Mono<VotingSession> votingSessionMono = this.votingSessionRepository.findById(votingSessionId);
         return votingSessionMono
                 .handle(this::computeVotesHandler)
-                .flatMap(votingSession -> this.repository.save(VotingSessionResultMapper.toModel(votingSession)))
+                .flatMap(votingSession -> this.repository.save(VotingSessionResultMapper.map(votingSession)))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 

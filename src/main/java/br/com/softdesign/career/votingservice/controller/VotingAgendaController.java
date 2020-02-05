@@ -35,7 +35,7 @@ public class VotingAgendaController {
             @ApiParam("Dados de entrada da pauta")
             @Valid @RequestBody final VotingAgendaTO votingAgendaTO) {
         log.debug("Received data for creating agenda with title {}", votingAgendaTO.getTitle());
-        return service.createVotingAgenda(VotingAgendaMapper.toModel(votingAgendaTO))
+        return service.createVotingAgenda(VotingAgendaMapper.map(votingAgendaTO))
                 .map(votingAgenda -> ResponseEntity
                         .created(URI.create(URL_PATTERN + "/" + votingAgenda.getId()))
                         .build());

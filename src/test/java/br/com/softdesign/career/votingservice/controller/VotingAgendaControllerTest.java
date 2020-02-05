@@ -39,7 +39,7 @@ public class VotingAgendaControllerTest {
     public void createVotingAgenda() {
         // Given
         final VotingAgendaTO votingAgendaTO = new VotingAgendaTO("Title", "Description");
-        final VotingAgenda votingAgenda = VotingAgendaMapper.toModel(votingAgendaTO);
+        final VotingAgenda votingAgenda = VotingAgendaMapper.map(votingAgendaTO);
         given(service.createVotingAgenda(any())).willReturn(Mono.just(votingAgenda));
 
         // When

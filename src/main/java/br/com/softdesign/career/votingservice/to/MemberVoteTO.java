@@ -4,7 +4,7 @@ import br.com.softdesign.career.votingservice.enums.Vote;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel
+@ApiModel(description = "Dados de entrada para o voto de um membro")
 public class MemberVoteTO {
 
     @ApiModelProperty("Identificador de um membro da cooperativa")
