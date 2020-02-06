@@ -117,6 +117,22 @@ java -jar build/libs/voting-service-0.0.1-SNAPSHOT.jar
 ## Tarefas bônus
 
 * Tarefa Bônus 1 - Integração com sistemas externos
+
+A integração com o serviço externo foi implementado no branch feat/bonus-1.
+Foi utilizado RestTemplate na ocasião.
+
+Link p/ o PR: https://github.com/eurafa/voting-service/pull/9
+
 * Tarefa Bônus 2 - Mensageria e filas
+
+A integração com o serviço de mensageria foi implementado no branch feat/bonus-2.
+
+Link p/ o PR: https://github.com/eurafa/voting-service/pull/10
+
 * Tarefa Bônus 3 - Performance
+
+
+
 * Tarefa Bônus 4 - Versionamento da API
+
+
