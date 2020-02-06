@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -91,7 +92,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isNotFound();
     }
 
     @Test
@@ -132,7 +133,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_FAILED);
     }
 
     @Test
@@ -151,7 +152,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isNotFound();
     }
 
     @Test
@@ -170,7 +171,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_REQUIRED);
     }
 
     @Test
@@ -210,7 +211,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_REQUIRED);
     }
 
     @Test
@@ -246,7 +247,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isNotFound();
     }
 
 }
