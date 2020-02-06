@@ -116,21 +116,21 @@ java -jar build/libs/voting-service-0.0.1-SNAPSHOT.jar
 
 ## Tarefas bônus
 
-* Tarefa Bônus 1 - Integração com sistemas externos
+### Tarefa Bônus 1 - Integração com sistemas externos
 
 A integração com o serviço externo foi implementado no branch `feat/bonus-1`.
 Foi utilizado `RestTemplate` na ocasião por já estar presente no projeto pelo ecossistema Spring.
 
 **Link p/ o PR**: https://github.com/eurafa/voting-service/pull/9
 
-* Tarefa Bônus 2 - Mensageria e filas
+### Tarefa Bônus 2 - Mensageria e filas
 
 A integração com o serviço de mensageria foi implementado no branch `feat/bonus-2`.
 Foi utilizado RabbitMQ. Poderia ser ActiveMQ, Kafka, SQS ou outro mecanismo de filas.
 
 Link p/ o PR: https://github.com/eurafa/voting-service/pull/10
 
-* Tarefa Bônus 3 - Performance
+### Tarefa Bônus 3 - Performance
 
 Considerando que a aplicação fosse receber um volume grande de votos, algumas medidas podem ser adotadas.
 Uma delas é escalar subindo mais instâncias, com um _load balancer_ à frente, por exemplo em uma infra AWS.
@@ -140,7 +140,7 @@ Não houve tempo hábil para implementar testes de performance. E testes de carg
 Como sugestão, poderiam ser feitos _benchmarks_ usando JMH, integrar com JUnit, colocar no _pipeline_ dando um sentido de _continuous benchmark_.    
 Já para testes de carga, poderia ser utilizado JMeter ou Gatling.
 
-* Tarefa Bônus 4 - Versionamento da API
+### Tarefa Bônus 4 - Versionamento da API
 
 Versionamento de API não é uma tarefa trivial e tem mais de uma forma de aplicar.
 
