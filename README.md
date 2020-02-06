@@ -132,8 +132,18 @@ Link p/ o PR: https://github.com/eurafa/voting-service/pull/10
 
 * Tarefa Bônus 3 - Performance
 
+Considerando que a aplicação fosse receber um volume grande de votos, algumas medidas podem ser adotadas.
+Uma delas é escalar subindo mais instâncias, com um load balancer à frente, por exemplo em uma infra AWS.
+Ou também resolver no lado do cliente por exemplo com frameworks da stack do Netflix (Ribbon, Eureka, Zuul). 
 
+Não houve tempo hábil para implementar testes de performance. E testes de carga também seriam interessantes.
+Como sugestão, poderiam ser feitos benchmarks usando JMH, integrar com JUnit, colocar no pipeline dando um sentido de benchmark contínuo.    
+Já para testes de carga, poderia ser utilizado JMeter ou Gatling.
 
 * Tarefa Bônus 4 - Versionamento da API
 
+Versionamento de API não é uma tarefa trivial e tem mais de uma forma de aplicar.
 
+A solução mais simples é prefixar a versão no path dos endpoints, porém te faz manter múltiplas versões no mesmo sistema e com o tempo vai ficando cada vez mais difícil manter.
+
+Acredito que uma melhor solução seria trabalhar com versões de artefatos diferentes. Nesse caso, a configuração é mais complexa, deve se ter um gateway ou proxy que vá te redirecionar para o artefato na versão desejada, mas em termos de manutenção e desenvolvimento é transparente, onde a API evolui livremente sem muita preocupação com legado e compatibilidade.
