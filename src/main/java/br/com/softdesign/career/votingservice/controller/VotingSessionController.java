@@ -30,9 +30,22 @@ public class VotingSessionController {
 
     private final VotingSessionResultService resultService;
 
-    public VotingSessionController(final VotingSessionService service, final VotingSessionResultService resultService) {
+    private final VotingSessionMapper votingSessionMapper;
+
+    private final MemberVoteMapper memberVoteMapper;
+
+    private final ResultsTOMapper resultsTOMapper;
+
+    public VotingSessionController(final VotingSessionService service,
+                                   final VotingSessionResultService resultService,
+                                   final VotingSessionMapper votingSessionMapper,
+                                   final MemberVoteMapper memberVoteMapper,
+                                   final ResultsTOMapper resultsTOMapper) {
         this.service = service;
         this.resultService = resultService;
+        this.votingSessionMapper = votingSessionMapper;
+        this.memberVoteMapper = memberVoteMapper;
+        this.resultsTOMapper = resultsTOMapper;
     }
 
     @ApiOperation(value = "Abrir sessão", notes = "Operação para abrir uma sessão de votos para determinada pauta")
@@ -41,7 +54,7 @@ public class VotingSessionController {
             @ApiParam("Dados de entrada da abertura de sessão")
             @Valid @RequestBody final OpenVotingSessionTO openVotingSessionTO) {
         log.debug("Received data for open session for agenda {}", openVotingSessionTO.getAgendaId());
-        return service.openVotingSession(VotingSessionMapper.map(openVotingSessionTO))
+        return service.openVotingSession(votingSessionMapper.map(openVotingSessionTO))
                 .map(votingAgenda -> ResponseEntity
                         .created(URI.create(URL_PATTERN + "/" + votingAgenda.getId()))
                         .build());
@@ -55,7 +68,7 @@ public class VotingSessionController {
             @ApiParam("Entrada de dados do voto de um membro")
             @Valid @RequestBody final MemberVoteTO memberVoteTO) {
         log.debug("Received data for compute a vote for member {} and session {}", memberVoteTO.getMemberId(), sessionId);
-        return service.computeMemberVote(sessionId, MemberVoteMapper.map(memberVoteTO))
+        return service.computeMemberVote(sessionId, memberVoteMapper.map(memberVoteTO))
                 .map(votingSession -> ResponseEntity.noContent().build());
     }
 
@@ -66,7 +79,7 @@ public class VotingSessionController {
             @PathVariable("session-id") final String sessionId) {
         log.debug("Received call for compute votes for session {}", sessionId);
         return resultService.computeVotes(sessionId)
-                .map(res -> ResultsTOMapper.map(sessionId, res));
+                .map(res -> resultsTOMapper.map(sessionId, res));
     }
 
     @ApiOperation(value = "Fechamento do resultado da sessão", notes = "Operação para análise dos votos da sessão de uma pauta da assembleia")
@@ -76,7 +89,7 @@ public class VotingSessionController {
             @PathVariable("session-id") final String sessionId) {
         log.debug("Received call for get votes result for session {}", sessionId);
         return resultService.getResults(sessionId)
-                .map(res -> ResultsTOMapper.map(sessionId, res));
+                .map(res -> resultsTOMapper.map(sessionId, res));
     }
 
 }

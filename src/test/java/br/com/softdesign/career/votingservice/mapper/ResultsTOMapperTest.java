@@ -14,18 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ResultsTOMapperTest {
 
     @Test
-    void testConstructor() {
-        // Given
-        final ResultsTOMapper mapper;
-
-        // When
-        mapper = new ResultsTOMapper();
-
-        // Then
-        assertThat(mapper).isNotNull();
-    }
-
-    @Test
     void map() {
         // Given
         final String sessionId = "sessionId";
@@ -34,7 +22,7 @@ class ResultsTOMapperTest {
         final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, votes);
 
         // When
-        final ResultsTO resultsTO = ResultsTOMapper.map(sessionId, votingSessionResult);
+        final ResultsTO resultsTO = new ResultsTOMapper().map(sessionId, votingSessionResult);
 
         // Then
         assertThat(resultsTO).isNotNull();

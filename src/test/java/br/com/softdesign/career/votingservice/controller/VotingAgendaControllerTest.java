@@ -25,6 +25,9 @@ public class VotingAgendaControllerTest {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private VotingAgendaMapper mapper;
+
     @MockBean
     private VotingAgendaService service;
 
@@ -39,7 +42,7 @@ public class VotingAgendaControllerTest {
     public void createVotingAgenda() {
         // Given
         final VotingAgendaTO votingAgendaTO = new VotingAgendaTO("Title", "Description");
-        final VotingAgenda votingAgenda = VotingAgendaMapper.map(votingAgendaTO);
+        final VotingAgenda votingAgenda = mapper.map(votingAgendaTO);
         given(service.createVotingAgenda(any())).willReturn(Mono.just(votingAgenda));
 
         // When
