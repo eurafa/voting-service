@@ -38,11 +38,81 @@ A API pode ser acessada através da URL http://localhost:8080/swagger-ui.html on
 
 Os dados são gravados no MongoDB, em suas respectivas *collections* no *database* chamado **coop**.
 
+### Clone
+
+Para clonar o repositório, execute:
+
+```bash
+git clone https://github.com/eurafa/voting-service.git
+``` 
+
+Lembrando que se você usa chave SSH, pode clonar executando:
+
+```bash
+git clone git@github.com:eurafa/voting-service.git
+```  
+
 ### Build
+
+Para compilar o projeto e gerar o artefato JAR, execute:
+
+```bash
+gradlew build
+```  
 
 ### Testes
 
+Os testes são executados também no build.
+Para executar apenas os testes, rode o comando:
+
+```bash
+gradlew test
+```  
+
+Se quiser gerar os relatórios de cobertura do JaCoCo, execute:
+
+```bash
+gradlew test jacocoTestReport
+```  
+
+O arquivo do relatório irá aparecer no console.
+
 ### Executando a aplicação
+
+#### Configurando o ambiente
+
+Lembrando que é pré-requisito que se tenha instalado previamente a JDK.
+
+O banco de dados MongoDB e o gerenciador de filas RabbitMQ, foram disponibilizado através do Docker.
+
+Para baixar as imagens, execute:
+
+```bash
+docker pull mongo
+```  
+
+e
+
+```bash
+docker pull rabbitmq:3-management
+```
+
+No diretório do projeto, está configurado o arquivo docker-composer.yml.
+
+Execute o comando abaixo para a montagem do ambiente:
+
+```bash
+docker-compose up
+```
+
+#### Inicializando a aplicação
+
+Com os recursos do ambiente disponíveis, é possível subir a aplicação do backend.
+Contando que você já tenha gerado o artefato JAR, basta executar agora: 
+
+```bash
+java -jar build/libs/voting-service-0.0.1-SNAPSHOT.jar
+```
 
 ## Tarefas bônus
 
