@@ -146,4 +146,4 @@ Versionamento de API não é uma tarefa trivial e tem mais de uma forma de aplic
 
 A solução mais simples seria prefixar a versão no _path_ dos _endpoints_, porém te faz manter múltiplas versões no mesmo sistema e com o tempo vai ficando cada vez mais difícil manter.
 
-Acredito que uma melhor solução seria trabalhar com versões de artefatos diferentes. Nesse caso, a configuração é mais complexa, deve-se ter um _gateway_ ou _proxy_ que vá te redirecionar para a API na versão desejada, mas em termos de manutenção e desenvolvimento é transparente, e a API evolui livremente. Em outras palavras, o código se mantém limpo e as preocupações de compatibilidade e legado vira operacional e não mais desenvolvimento.
+Acredito que uma melhor solução seria trabalhar com versões de artefatos diferentes. Nesse caso, a configuração é mais complexa, deve-se ter um _gateway_ ou _proxy_ que vá te redirecionar para a API na versão desejada, mas em termos de manutenção e desenvolvimento é transparente, e a API evolui livremente. Em outras palavras, o código se mantém limpo e as preocupações de compatibilidade e legado são operacionais e não mais de desenvolvimento.
