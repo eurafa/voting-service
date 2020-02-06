@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +42,9 @@ public class VotingSessionControllerTest {
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private VotingSessionMapper votingSessionMapper;
+
     @MockBean
     private VotingSessionService service;
 
@@ -48,6 +52,10 @@ public class VotingSessionControllerTest {
     private VotingSessionResultService resultService;
 
     private WebTestClient webTestClient;
+
+    private final MemberVoteMapper memberVoteMapper = new MemberVoteMapper();
+
+    private final ResultsTOMapper resultsTOMapper = new ResultsTOMapper();
 
     @BeforeEach
     public void setUp() {
@@ -58,7 +66,7 @@ public class VotingSessionControllerTest {
     public void openVotingSession() {
         // Given
         final OpenVotingSessionTO openVotingSessionTO = new OpenVotingSessionTO("agendaId", 1);
-        final VotingSession votingSession = VotingSessionMapper.map(openVotingSessionTO);
+        final VotingSession votingSession = votingSessionMapper.map(openVotingSessionTO);
         given(service.openVotingSession(any())).willReturn(Mono.just(votingSession));
 
         // When
@@ -91,7 +99,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isNotFound();
     }
 
     @Test
@@ -99,7 +107,7 @@ public class VotingSessionControllerTest {
         // Given
         final String sessionId = "sessionId";
         final MemberVoteTO memberVoteTO = new MemberVoteTO("memberId", Vote.YES);
-        final MemberVote memberVote = MemberVoteMapper.map(memberVoteTO);
+        final MemberVote memberVote = memberVoteMapper.map(memberVoteTO);
         final VotingSession votingSession = new VotingSession(sessionId, "agendaId", LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusMinutes(1), Collections.singleton(memberVote));
         given(service.computeMemberVote(anyString(), any())).willReturn(Mono.just(votingSession));
 
@@ -132,7 +140,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_FAILED);
     }
 
     @Test
@@ -151,7 +159,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isNotFound();
     }
 
     @Test
@@ -170,7 +178,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_REQUIRED);
     }
 
     @Test
@@ -179,7 +187,7 @@ public class VotingSessionControllerTest {
         final String sessionId = "sessionId";
         final Map<String, Long> votes = Arrays.asList(Vote.values()).stream().collect(Collectors.toMap(Object::toString, v -> 1L));
         final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, votes);
-        final ResultsTO resultsTO = ResultsTOMapper.map(sessionId, votingSessionResult);
+        final ResultsTO resultsTO = resultsTOMapper.map(sessionId, votingSessionResult);
         given(resultService.computeVotes(anyString())).willReturn(Mono.just(votingSessionResult));
 
         // When
@@ -210,7 +218,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_REQUIRED);
     }
 
     @Test
@@ -219,7 +227,7 @@ public class VotingSessionControllerTest {
         final String sessionId = "sessionId";
         final Map<String, Long> votes = Arrays.asList(Vote.values()).stream().collect(Collectors.toMap(Object::toString, v -> 1L));
         final VotingSessionResult votingSessionResult = new VotingSessionResult(sessionId, votes);
-        final ResultsTO resultsTO = ResultsTOMapper.map(sessionId, votingSessionResult);
+        final ResultsTO resultsTO = resultsTOMapper.map(sessionId, votingSessionResult);
         given(resultService.getResults(anyString())).willReturn(Mono.just(votingSessionResult));
 
         // When
@@ -246,7 +254,7 @@ public class VotingSessionControllerTest {
                 .exchange();
 
         // Then
-        response.expectStatus().isBadRequest();
+        response.expectStatus().isNotFound();
     }
 
 }

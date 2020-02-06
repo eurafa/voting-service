@@ -9,17 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class VotingAgendaMapperTest {
 
-    @Test
-    void testConstructor() {
-        // Given
-        final VotingAgendaMapper mapper;
-
-        // When
-        mapper = new VotingAgendaMapper();
-
-        // Then
-        assertThat(mapper).isNotNull();
-    }
+    private final VotingAgendaMapper mapper = new VotingAgendaMapper();
 
     @Test
     void map() {
@@ -27,7 +17,7 @@ class VotingAgendaMapperTest {
         final VotingAgendaTO votingAgendaTO = new VotingAgendaTO("Title", "Description");
 
         // When
-        final VotingAgenda votingAgenda = VotingAgendaMapper.map(votingAgendaTO);
+        final VotingAgenda votingAgenda = mapper.map(votingAgendaTO);
 
         // Then
         assertThat(votingAgenda).isNotNull();
@@ -42,7 +32,7 @@ class VotingAgendaMapperTest {
         // Given
 
         // When
-        final Throwable throwable = Assertions.catchThrowable(() -> VotingAgendaMapper.map(null));
+        final Throwable throwable = Assertions.catchThrowable(() -> mapper.map(null));
 
         // Then
         assertThat(throwable).isInstanceOf(NullPointerException.class);

@@ -25,9 +25,14 @@ public class VotingSessionResultService {
 
     private final VotingSessionRepository votingSessionRepository;
 
-    public VotingSessionResultService(final VotingSessionResultRepository repository, final VotingSessionRepository votingSessionRepository) {
+    private final VotingSessionResultMapper votingSessionResultMapper;
+
+    public VotingSessionResultService(final VotingSessionResultRepository repository,
+                                      final VotingSessionRepository votingSessionRepository,
+                                      final VotingSessionResultMapper votingSessionResultMapper) {
         this.repository = repository;
         this.votingSessionRepository = votingSessionRepository;
+        this.votingSessionResultMapper = votingSessionResultMapper;
     }
 
     public Mono<VotingSessionResult> getResults(final String votingSessionId) {
@@ -41,7 +46,7 @@ public class VotingSessionResultService {
         final Mono<VotingSession> votingSessionMono = this.votingSessionRepository.findById(votingSessionId);
         return votingSessionMono
                 .handle(this::computeVotesHandler)
-                .flatMap(votingSession -> this.repository.save(VotingSessionResultMapper.map(votingSession)))
+                .flatMap(votingSession -> this.repository.save(votingSessionResultMapper.map(votingSession)))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
