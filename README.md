@@ -3,7 +3,7 @@
 ## Introdução
 
 Esse projeto é uma prova, parte de um processo seletivo.
-A solicitação está descrita em: [Avaliação técnica Backend V1](https://github.com/SoftdesignBrasil/avalicao-tecnica-backend-v1/issues/).
+A solicitação está descrita em: [Avaliação técnica Backend V1](https://github.com/SoftdesignBrasil/avalicao-tecnica-backend-v1/issues/1).
 
 ## Solução proposta
 
