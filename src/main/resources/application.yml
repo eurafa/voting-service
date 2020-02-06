@@ -5,3 +5,7 @@ spring:
   data:
     mongodb:
       database: coop
+
+cpfValidator:
+  api:
+    url: "http://localhost:8081/users/"

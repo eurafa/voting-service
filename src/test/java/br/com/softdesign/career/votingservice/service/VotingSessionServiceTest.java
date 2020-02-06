@@ -1,13 +1,12 @@
 package br.com.softdesign.career.votingservice.service;
 
+import br.com.softdesign.career.votingservice.component.CpfValidatorComponent;
 import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingAgenda;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
+import br.com.softdesign.career.votingservice.enums.MemberCpfValidationStatus;
 import br.com.softdesign.career.votingservice.enums.Vote;
-import br.com.softdesign.career.votingservice.exception.MemberVoteAlreadyComputedException;
-import br.com.softdesign.career.votingservice.exception.VotingAgendaNotFoundException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionClosedException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.repository.VotingAgendaRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,9 @@ public class VotingSessionServiceTest {
 
     private final VotingAgendaRepository agendaRepository = Mockito.mock(VotingAgendaRepository.class);
 
-    private final VotingSessionService service = new VotingSessionService(repository, agendaRepository);
+    private final CpfValidatorComponent cpfValidatorComponent = Mockito.mock(CpfValidatorComponent.class);
+
+    private final VotingSessionService service = new VotingSessionService(repository, agendaRepository, cpfValidatorComponent);
 
     @Test
     void openVotingSession() {
@@ -81,6 +82,7 @@ public class VotingSessionServiceTest {
         final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end);
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
         given(repository.findById(anyString())).willReturn(Mono.just(votingSession));
+        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(MemberCpfValidationStatus.ABLE_TO_VOTE);
         given(repository.save(any())).willReturn(Mono.just(votingSession));
 
         // When
@@ -90,6 +92,27 @@ public class VotingSessionServiceTest {
         StepVerifier.create(votingSessionMono)
                 .expectNext(votingSession)
                 .verifyComplete();
+    }
+
+    @Test
+    void computeMemberVoteFailureUnableToVote() {
+        // Given
+        final String sessionId = UUID.randomUUID().toString();
+        final LocalDateTime start = LocalDateTime.now();
+        final LocalDateTime end = LocalDateTime.now().plusMinutes(1);
+        final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end);
+        final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
+        given(repository.findById(anyString())).willReturn(Mono.just(votingSession));
+        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(MemberCpfValidationStatus.UNABLE_TO_VOTE);
+        given(repository.save(any())).willReturn(Mono.just(votingSession));
+
+        // When
+        final Mono<VotingSession> votingSessionMono = service.computeMemberVote(sessionId, memberVote);
+
+        // Then
+        StepVerifier.create(votingSessionMono)
+                .expectError(MemberUnableToVoteException.class)
+                .verify();
     }
 
     @Test

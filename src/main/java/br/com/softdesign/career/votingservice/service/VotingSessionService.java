@@ -1,12 +1,11 @@
 package br.com.softdesign.career.votingservice.service;
 
+import br.com.softdesign.career.votingservice.component.CpfValidatorComponent;
 import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingAgenda;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
-import br.com.softdesign.career.votingservice.exception.MemberVoteAlreadyComputedException;
-import br.com.softdesign.career.votingservice.exception.VotingAgendaNotFoundException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionClosedException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.enums.MemberCpfValidationStatus;
+import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionMapper;
 import br.com.softdesign.career.votingservice.repository.VotingAgendaRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
@@ -31,9 +30,12 @@ public class VotingSessionService {
 
     private final VotingAgendaRepository agendaRepository;
 
-    public VotingSessionService(final VotingSessionRepository repository, final VotingAgendaRepository agendaRepository) {
+    private final CpfValidatorComponent cpfValidatorComponent;
+
+    public VotingSessionService(final VotingSessionRepository repository, final VotingAgendaRepository agendaRepository, final CpfValidatorComponent cpfValidatorComponent) {
         this.repository = repository;
         this.agendaRepository = agendaRepository;
+        this.cpfValidatorComponent = cpfValidatorComponent;
     }
 
     public Mono<VotingSession> openVotingSession(final VotingSession votingSession) {
@@ -61,7 +63,12 @@ public class VotingSessionService {
             if (membersAlreadyVoted.contains(memberVote.getMemberId())) {
                 sink.error(new MemberVoteAlreadyComputedException(memberVote.getMemberId(), votingSession.getId()));
             } else {
-                sink.next(votingSession);
+                final MemberCpfValidationStatus memberCpfValidationStatus = cpfValidatorComponent.validateCpf(memberVote.getMemberId());
+                if (memberCpfValidationStatus == MemberCpfValidationStatus.ABLE_TO_VOTE) {
+                    sink.next(votingSession);
+                } else {
+                    sink.error(new MemberUnableToVoteException(memberVote.getMemberId()));
+                }
             }
         } else {
             sink.error(new VotingSessionClosedException(votingSession.getId(), votingSession.getEnd()));

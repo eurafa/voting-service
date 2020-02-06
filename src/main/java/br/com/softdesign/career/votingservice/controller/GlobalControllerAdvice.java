@@ -3,6 +3,7 @@ package br.com.softdesign.career.votingservice.controller;
 import br.com.softdesign.career.votingservice.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -47,6 +48,12 @@ public class GlobalControllerAdvice {
     protected Mono<ResponseEntity<?>> handleException(final VotingSessionResultsNotFoundException ex) {
         log.error(ex.getMessage(), ex);
         return Mono.just(ResponseEntity.badRequest().body(ex.getMessage()));
+    }
+
+    @ExceptionHandler(value = MemberUnableToVoteException.class)
+    protected Mono<ResponseEntity<?>> handleException(final MemberUnableToVoteException ex) {
+        log.error(ex.getMessage(), ex);
+        return Mono.just(ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED).body(ex.getMessage()));
     }
 
 }
