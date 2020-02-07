@@ -1,5 +1,6 @@
 package br.com.softdesign.career.votingservice.service;
 
+import br.com.softdesign.career.votingservice.component.VotingSessionResultPublisherComponent;
 import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
 import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
@@ -25,6 +26,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 
 public class VotingSessionResultServiceTest {
 
@@ -34,7 +36,9 @@ public class VotingSessionResultServiceTest {
 
     private final VotingSessionResultMapper votingSessionResultMapper = new VotingSessionResultMapper();
 
-    private final VotingSessionResultService service = new VotingSessionResultService(repository, votingSessionRepository, votingSessionResultMapper);
+    private final VotingSessionResultPublisherComponent resultPublisherComponent = Mockito.mock(VotingSessionResultPublisherComponent.class);
+
+    private final VotingSessionResultService service = new VotingSessionResultService(repository, votingSessionRepository, votingSessionResultMapper, resultPublisherComponent);
 
     @Test
     void computeVotes() {
@@ -52,6 +56,7 @@ public class VotingSessionResultServiceTest {
         final VotingSessionResult votingSessionResult = votingSessionResultMapper.map(votingSession);
         given(votingSessionRepository.findById(sessionId)).willReturn(Mono.just(votingSession));
         given(repository.save(any())).willReturn(Mono.just(votingSessionResult));
+        doNothing().when(resultPublisherComponent).publish(any());
 
         // When
         final Mono<VotingSessionResult> votingSessionResultMono = service.computeVotes(sessionId);
@@ -73,6 +78,7 @@ public class VotingSessionResultServiceTest {
         final VotingSessionResult votingSessionResult = votingSessionResultMapper.map(votingSession);
         given(votingSessionRepository.findById(sessionId)).willReturn(Mono.just(votingSession));
         given(repository.save(any())).willReturn(Mono.just(votingSessionResult));
+        doNothing().when(resultPublisherComponent).publish(any());
 
         // When
         final Mono<VotingSessionResult> votingSessionResultMono = service.computeVotes(sessionId);

@@ -6,6 +6,11 @@ spring:
     mongodb:
       database: coop
 
+amqp:
+  queue: voting-session-result-queue
+  exchange: voting-session-result--exchange
+  routingKey: voting-session-result-routingkey
+
 cpfValidator:
   api:
     url: "https://user-info.herokuapp.com/users/"

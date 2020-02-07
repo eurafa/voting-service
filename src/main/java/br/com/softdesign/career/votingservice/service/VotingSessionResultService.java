@@ -1,5 +1,6 @@
 package br.com.softdesign.career.votingservice.service;
 
+import br.com.softdesign.career.votingservice.component.VotingSessionResultPublisherComponent;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
 import br.com.softdesign.career.votingservice.domain.VotingSessionResult;
 import br.com.softdesign.career.votingservice.exception.UnfinishedVotingSessionException;
@@ -26,12 +27,16 @@ public class VotingSessionResultService {
 
     private final VotingSessionResultMapper votingSessionResultMapper;
 
+    private final VotingSessionResultPublisherComponent resultPublisherComponent;
+
     public VotingSessionResultService(final VotingSessionResultRepository repository,
                                       final VotingSessionRepository votingSessionRepository,
-                                      final VotingSessionResultMapper votingSessionResultMapper) {
+                                      final VotingSessionResultMapper votingSessionResultMapper,
+                                      final VotingSessionResultPublisherComponent resultPublisherComponent) {
         this.repository = repository;
         this.votingSessionRepository = votingSessionRepository;
         this.votingSessionResultMapper = votingSessionResultMapper;
+        this.resultPublisherComponent = resultPublisherComponent;
     }
 
     public Mono<VotingSessionResult> getResults(final String votingSessionId) {
@@ -46,6 +51,7 @@ public class VotingSessionResultService {
         return votingSessionMono
                 .flatMap(this::validateSession)
                 .flatMap(votingSession -> this.repository.save(votingSessionResultMapper.map(votingSession)))
+                .doOnNext(resultPublisherComponent::publish)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
