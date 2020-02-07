@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 
 import java.time.LocalDateTime;
 
@@ -26,13 +25,17 @@ public class VotingSessionResultService {
 
     private final VotingSessionRepository votingSessionRepository;
 
+    private final VotingSessionResultMapper votingSessionResultMapper;
+
     private final VotingSessionResultPublisherComponent resultPublisherComponent;
 
     public VotingSessionResultService(final VotingSessionResultRepository repository,
                                       final VotingSessionRepository votingSessionRepository,
+                                      final VotingSessionResultMapper votingSessionResultMapper,
                                       final VotingSessionResultPublisherComponent resultPublisherComponent) {
         this.repository = repository;
         this.votingSessionRepository = votingSessionRepository;
+        this.votingSessionResultMapper = votingSessionResultMapper;
         this.resultPublisherComponent = resultPublisherComponent;
     }
 
@@ -46,19 +49,16 @@ public class VotingSessionResultService {
         log.info("Computing votes for session {}", votingSessionId);
         final Mono<VotingSession> votingSessionMono = this.votingSessionRepository.findById(votingSessionId);
         return votingSessionMono
-                .handle(this::computeVotesHandler)
-                .flatMap(votingSession -> this.repository.save(VotingSessionResultMapper.map(votingSession)))
+                .flatMap(this::validateSession)
+                .flatMap(votingSession -> this.repository.save(votingSessionResultMapper.map(votingSession)))
                 .doOnNext(resultPublisherComponent::publish)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
-    private void computeVotesHandler(final VotingSession votingSession, final SynchronousSink<VotingSession> sink) {
-        final boolean isOpened = LocalDateTime.now().isBefore(votingSession.getEnd());
-        if (isOpened) {
-            sink.error(new UnfinishedVotingSessionException(votingSession.getId(), votingSession.getEnd()));
-        } else {
-            sink.next(votingSession);
-        }
+    private Mono<VotingSession> validateSession(final VotingSession votingSession) {
+        return Mono.just(votingSession)
+                .filter(vs -> LocalDateTime.now().isAfter(vs.getEnd()))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new UnfinishedVotingSessionException(votingSession.getId(), votingSession.getEnd()))));
     }
 
 }

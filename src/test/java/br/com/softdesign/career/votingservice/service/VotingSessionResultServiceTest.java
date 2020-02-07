@@ -34,9 +34,11 @@ public class VotingSessionResultServiceTest {
 
     private final VotingSessionRepository votingSessionRepository = Mockito.mock(VotingSessionRepository.class);
 
+    private final VotingSessionResultMapper votingSessionResultMapper = new VotingSessionResultMapper();
+
     private final VotingSessionResultPublisherComponent resultPublisherComponent = Mockito.mock(VotingSessionResultPublisherComponent.class);
 
-    private final VotingSessionResultService service = new VotingSessionResultService(repository, votingSessionRepository, resultPublisherComponent);
+    private final VotingSessionResultService service = new VotingSessionResultService(repository, votingSessionRepository, votingSessionResultMapper, resultPublisherComponent);
 
     @Test
     void computeVotes() {
@@ -51,7 +53,7 @@ public class VotingSessionResultServiceTest {
                 new MemberVote("member3", Vote.NO.name(), LocalDateTime.now())
         ).collect(Collectors.toSet());
         final VotingSession votingSession = new VotingSession(sessionId, agendaId, start, end, votes);
-        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.map(votingSession);
+        final VotingSessionResult votingSessionResult = votingSessionResultMapper.map(votingSession);
         given(votingSessionRepository.findById(sessionId)).willReturn(Mono.just(votingSession));
         given(repository.save(any())).willReturn(Mono.just(votingSessionResult));
         doNothing().when(resultPublisherComponent).publish(any());
@@ -73,7 +75,7 @@ public class VotingSessionResultServiceTest {
         final LocalDateTime start = LocalDateTime.now().minusMinutes(1);
         final LocalDateTime end = LocalDateTime.now();
         final VotingSession votingSession = new VotingSession(sessionId, agendaId, start, end);
-        final VotingSessionResult votingSessionResult = VotingSessionResultMapper.map(votingSession);
+        final VotingSessionResult votingSessionResult = votingSessionResultMapper.map(votingSession);
         given(votingSessionRepository.findById(sessionId)).willReturn(Mono.just(votingSession));
         given(repository.save(any())).willReturn(Mono.just(votingSessionResult));
         doNothing().when(resultPublisherComponent).publish(any());

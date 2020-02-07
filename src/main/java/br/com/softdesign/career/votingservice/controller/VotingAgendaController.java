@@ -25,8 +25,11 @@ public class VotingAgendaController {
 
     private final VotingAgendaService service;
 
-    public VotingAgendaController(final VotingAgendaService service) {
+    private final VotingAgendaMapper mapper;
+
+    public VotingAgendaController(final VotingAgendaService service, final VotingAgendaMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @ApiOperation(value = "Criar pauta", notes = "Operação para criar uma pauta para votação na assembleia")
@@ -35,7 +38,7 @@ public class VotingAgendaController {
             @ApiParam("Dados de entrada da pauta")
             @Valid @RequestBody final VotingAgendaTO votingAgendaTO) {
         log.debug("Received data for creating agenda with title {}", votingAgendaTO.getTitle());
-        return service.createVotingAgenda(VotingAgendaMapper.map(votingAgendaTO))
+        return service.createVotingAgenda(mapper.map(votingAgendaTO))
                 .map(votingAgenda -> ResponseEntity
                         .created(URI.create(URL_PATTERN + "/" + votingAgenda.getId()))
                         .build());
