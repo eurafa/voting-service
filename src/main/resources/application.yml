@@ -5,3 +5,7 @@ spring:
   data:
     mongodb:
       database: coop
+
+cpfValidator:
+  api:
+    url: "https://user-info.herokuapp.com/users/"

@@ -124,6 +124,50 @@ public class VotingSessionControllerTest {
     }
 
     @Test
+    public void computeMemberVoteFailureInvalidCpf() {
+        // Given
+        final String sessionId = "sessionId";
+        final String memberId = "memberId";
+        final MemberVoteTO memberVoteTO = new MemberVoteTO(memberId, Vote.YES);
+        final MemberVote memberVote = memberVoteMapper.map(memberVoteTO);
+        final VotingSession votingSession = new VotingSession(sessionId, "agendaId", LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusMinutes(1), Collections.singleton(memberVote));
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(new InvalidCpfException(memberId)));
+
+        // When
+        final WebTestClient.ResponseSpec response = webTestClient.patch()
+                .uri(VotingSessionController.URL_PATTERN + "/" + sessionId + "/vote")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .body(Mono.just(memberVoteTO), MemberVoteTO.class)
+                .exchange();
+
+        // Then
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_REQUIRED);
+    }
+
+    @Test
+    public void computeMemberVoteFailureUnableToVote() {
+        // Given
+        final String sessionId = "sessionId";
+        final String memberId = "memberId";
+        final MemberVoteTO memberVoteTO = new MemberVoteTO(memberId, Vote.YES);
+        final MemberVote memberVote = memberVoteMapper.map(memberVoteTO);
+        final VotingSession votingSession = new VotingSession(sessionId, "agendaId", LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusMinutes(1), Collections.singleton(memberVote));
+        given(service.computeMemberVote(anyString(), any())).willReturn(Mono.error(new MemberUnableToVoteException(memberId)));
+
+        // When
+        final WebTestClient.ResponseSpec response = webTestClient.patch()
+                .uri(VotingSessionController.URL_PATTERN + "/" + sessionId + "/vote")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .body(Mono.just(memberVoteTO), MemberVoteTO.class)
+                .exchange();
+
+        // Then
+        response.expectStatus().isEqualTo(HttpStatus.PRECONDITION_REQUIRED);
+    }
+
+    @Test
     public void computeMemberVoteFailureAlreadyVoted() {
         // Given
         final String memberId = "memberId";

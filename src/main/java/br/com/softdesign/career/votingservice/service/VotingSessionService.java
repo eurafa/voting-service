@@ -1,12 +1,11 @@
 package br.com.softdesign.career.votingservice.service;
 
+import br.com.softdesign.career.votingservice.component.CpfValidatorComponent;
 import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingAgenda;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
-import br.com.softdesign.career.votingservice.exception.MemberVoteAlreadyComputedException;
-import br.com.softdesign.career.votingservice.exception.VotingAgendaNotFoundException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionClosedException;
-import br.com.softdesign.career.votingservice.exception.VotingSessionNotFoundException;
+import br.com.softdesign.career.votingservice.enums.CpfValidationStatus;
+import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.repository.VotingAgendaRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
 import org.slf4j.Logger;
@@ -31,9 +30,12 @@ public class VotingSessionService {
 
     private final VotingAgendaRepository agendaRepository;
 
-    public VotingSessionService(final VotingSessionRepository repository, final VotingAgendaRepository agendaRepository) {
+    private final CpfValidatorComponent cpfValidatorComponent;
+
+    public VotingSessionService(final VotingSessionRepository repository, final VotingAgendaRepository agendaRepository, final CpfValidatorComponent cpfValidatorComponent) {
         this.repository = repository;
         this.agendaRepository = agendaRepository;
+        this.cpfValidatorComponent = cpfValidatorComponent;
     }
 
     public Mono<VotingSession> openVotingSession(final VotingSession votingSession) {
@@ -48,8 +50,8 @@ public class VotingSessionService {
         log.info("Computing a member {} vote for session {}", memberVote.getMemberId(), votingSessionId);
         final Mono<VotingSession> votingSessionMono = repository.findById(votingSessionId);
         return votingSessionMono
-//                .handle((VotingSession votingSession, SynchronousSink<VotingSession> sink) -> computeMemberVoteHandler(votingSession, memberVote, sink))
                 .flatMap(this::validateSession)
+                .flatMap(votingSession -> this.validateMember(votingSession, memberVote))
                 .flatMap(votingSession -> this.validateMemberVote(votingSession, memberVote))
                 .flatMap(votingSession -> this.repository.save(pushMemberVote(votingSession, memberVote)))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
@@ -59,6 +61,14 @@ public class VotingSessionService {
         return Mono.just(votingSession)
                 .filter(vs -> LocalDateTime.now().isBefore(vs.getEnd()))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionClosedException(votingSession.getId(), votingSession.getEnd()))));
+    }
+
+    private Mono<VotingSession> validateMember(final VotingSession votingSession, final MemberVote memberVote) {
+        final Mono<CpfValidationStatus> memberCpfValidationStatus = cpfValidatorComponent.validateCpf(memberVote.getMemberId());
+        return memberCpfValidationStatus
+                .filter(status -> status == CpfValidationStatus.ABLE_TO_VOTE)
+                .map(status -> votingSession)
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new MemberUnableToVoteException(memberVote.getMemberId()))));
     }
 
     private Mono<VotingSession> validateMemberVote(final VotingSession votingSession, final MemberVote memberVote) {
