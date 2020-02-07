@@ -50,6 +50,12 @@ public class GlobalControllerAdvice {
         return Mono.just(ResponseEntity.notFound().build());
     }
 
+    @ExceptionHandler(value = InvalidCpfException.class)
+    protected Mono<ResponseEntity<?>> handleException(final InvalidCpfException ex) {
+        log.error(ex.getMessage(), ex);
+        return Mono.just(ResponseEntity.status(HttpStatus.PRECONDITION_REQUIRED).body(ex.getMessage()));
+    }
+
     @ExceptionHandler(value = MemberUnableToVoteException.class)
     protected Mono<ResponseEntity<?>> handleException(final MemberUnableToVoteException ex) {
         log.error(ex.getMessage(), ex);

@@ -4,7 +4,7 @@ import br.com.softdesign.career.votingservice.component.CpfValidatorComponent;
 import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingAgenda;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
-import br.com.softdesign.career.votingservice.enums.MemberCpfValidationStatus;
+import br.com.softdesign.career.votingservice.enums.CpfValidationStatus;
 import br.com.softdesign.career.votingservice.enums.Vote;
 import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.mapper.VotingSessionMapper;
@@ -88,7 +88,7 @@ public class VotingSessionServiceTest {
         final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end);
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
         given(repository.findById(anyString())).willReturn(Mono.just(votingSession));
-        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(MemberCpfValidationStatus.ABLE_TO_VOTE);
+        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(Mono.just(CpfValidationStatus.ABLE_TO_VOTE));
         given(repository.save(any())).willReturn(Mono.just(votingSession));
 
         // When
@@ -109,7 +109,7 @@ public class VotingSessionServiceTest {
         final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end);
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
         given(repository.findById(anyString())).willReturn(Mono.just(votingSession));
-        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(MemberCpfValidationStatus.UNABLE_TO_VOTE);
+        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(Mono.just(CpfValidationStatus.UNABLE_TO_VOTE));
         given(repository.save(any())).willReturn(Mono.just(votingSession));
 
         // When
@@ -165,7 +165,7 @@ public class VotingSessionServiceTest {
         final MemberVote memberVote = new MemberVote("memberId", Vote.YES.name(), LocalDateTime.now());
         final VotingSession votingSession = new VotingSession(sessionId, "agendaId", start, end, Collections.singleton(memberVote));
         given(repository.findById(anyString())).willReturn(Mono.just(votingSession));
-        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(MemberCpfValidationStatus.ABLE_TO_VOTE);
+        given(cpfValidatorComponent.validateCpf(anyString())).willReturn(Mono.just(CpfValidationStatus.ABLE_TO_VOTE));
 
         // When
         final Mono<VotingSession> votingSessionMono = service.computeMemberVote(sessionId, memberVote);

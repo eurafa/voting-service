@@ -2,14 +2,14 @@ package br.com.softdesign.career.votingservice.to;
 
 import br.com.softdesign.career.votingservice.enums.CpfValidationStatus;
 
-public class MemberCpfValidationTO {
+public class CpfValidationResponseTO {
 
     private CpfValidationStatus status;
 
-    public MemberCpfValidationTO() {
+    public CpfValidationResponseTO() {
     }
 
-    public MemberCpfValidationTO(final CpfValidationStatus status) {
+    public CpfValidationResponseTO(final CpfValidationStatus status) {
         this.status = status;
     }
 
@@ -17,7 +17,7 @@ public class MemberCpfValidationTO {
         return status;
     }
 
-    public void setStatus(CpfValidationStatus status) {
+    public void setStatus(final CpfValidationStatus status) {
         this.status = status;
     }
 

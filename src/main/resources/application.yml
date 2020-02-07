@@ -8,4 +8,4 @@ spring:
 
 cpfValidator:
   api:
-    url: "http://localhost:8081/users/"
+    url: "https://user-info.herokuapp.com/users/"

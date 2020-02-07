@@ -4,7 +4,7 @@ import br.com.softdesign.career.votingservice.component.CpfValidatorComponent;
 import br.com.softdesign.career.votingservice.domain.MemberVote;
 import br.com.softdesign.career.votingservice.domain.VotingAgenda;
 import br.com.softdesign.career.votingservice.domain.VotingSession;
-import br.com.softdesign.career.votingservice.enums.MemberCpfValidationStatus;
+import br.com.softdesign.career.votingservice.enums.CpfValidationStatus;
 import br.com.softdesign.career.votingservice.exception.*;
 import br.com.softdesign.career.votingservice.repository.VotingAgendaRepository;
 import br.com.softdesign.career.votingservice.repository.VotingSessionRepository;
@@ -64,9 +64,10 @@ public class VotingSessionService {
     }
 
     private Mono<VotingSession> validateMember(final VotingSession votingSession, final MemberVote memberVote) {
-        final MemberCpfValidationStatus memberCpfValidationStatus = cpfValidatorComponent.validateCpf(memberVote.getMemberId());
-        return Mono.just(votingSession)
-                .filter(vs -> memberCpfValidationStatus == MemberCpfValidationStatus.ABLE_TO_VOTE)
+        final Mono<CpfValidationStatus> memberCpfValidationStatus = cpfValidatorComponent.validateCpf(memberVote.getMemberId());
+        return memberCpfValidationStatus
+                .filter(status -> status == CpfValidationStatus.ABLE_TO_VOTE)
+                .map(status -> votingSession)
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new MemberUnableToVoteException(memberVote.getMemberId()))));
     }
 
