@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 
 import java.time.LocalDateTime;
 
@@ -45,18 +44,15 @@ public class VotingSessionResultService {
         log.info("Computing votes for session {}", votingSessionId);
         final Mono<VotingSession> votingSessionMono = this.votingSessionRepository.findById(votingSessionId);
         return votingSessionMono
-                .handle(this::computeVotesHandler)
+                .flatMap(this::validateSession)
                 .flatMap(votingSession -> this.repository.save(votingSessionResultMapper.map(votingSession)))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
-    private void computeVotesHandler(final VotingSession votingSession, final SynchronousSink<VotingSession> sink) {
-        final boolean isOpened = LocalDateTime.now().isBefore(votingSession.getEnd());
-        if (isOpened) {
-            sink.error(new UnfinishedVotingSessionException(votingSession.getId(), votingSession.getEnd()));
-        } else {
-            sink.next(votingSession);
-        }
+    private Mono<VotingSession> validateSession(final VotingSession votingSession) {
+        return Mono.just(votingSession)
+                .filter(vs -> LocalDateTime.now().isAfter(vs.getEnd()))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new UnfinishedVotingSessionException(votingSession.getId(), votingSession.getEnd()))));
     }
 
 }

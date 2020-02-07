@@ -17,7 +17,7 @@ A escolha da linguagem Java se dá pelo fato do candidato trabalhar por praticam
 Pelo tempo destinado ao desenvolvimento do exercício e por todos os recursos plugáveis que o Spring provê, 
 se optou por utilizar o SpringBoot e assim agilizar o desenvolvimento já criando a aplicação pronta para deploy.
 
-Programação reativa é um assunto que está em alta e a opção por usar neste projeto é justamente aproveitar o paradigma desde o início do desenvolvimento, preparando a aplicação para performar e escalar utilizando melhor os recursos de hardware.  
+Programação reativa é um assunto que está em alta e a opção por usar neste projeto é justamente aproveitar o paradigma desde o início do desenvolvimento, preparando a aplicação para performar e escalar melhor.  
 
 O modelo de dados do exercício é bastante simples e ainda que tivesse alguma relação entre entidades, acredito que a opção foi utilizar banco NoSQL, por um olhar de trabalhar mais com dados consolidados e visando melhor desempenho com volumes maiores. 
 
@@ -97,6 +97,8 @@ e
 docker pull rabbitmq:3-management
 ```
 
+> Lembrando que o RabbitMQ é necessário apenas para a tarefa Bonus 2.
+
 No diretório do projeto, está configurado o arquivo `docker-composer.yml`.
 
 Execute o comando abaixo para a montagem do ambiente:
@@ -147,3 +149,4 @@ Versionamento de API não é uma tarefa trivial e tem mais de uma forma de aplic
 A solução mais simples seria prefixar a versão no _path_ dos _endpoints_, porém te faz manter múltiplas versões no mesmo sistema e com o tempo vai ficando cada vez mais difícil manter.
 
 Acredito que uma melhor solução seria trabalhar com versões de artefatos diferentes. Nesse caso, a configuração é mais complexa, deve-se ter um _gateway_ ou _proxy_ que vá te redirecionar para a API na versão desejada, mas em termos de manutenção e desenvolvimento é transparente, e a API evolui livremente. Em outras palavras, o código se mantém limpo e as preocupações de compatibilidade e legado são operacionais e não mais de desenvolvimento.
+

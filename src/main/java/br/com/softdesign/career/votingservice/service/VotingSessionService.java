@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -49,24 +48,29 @@ public class VotingSessionService {
         log.info("Computing a member {} vote for session {}", memberVote.getMemberId(), votingSessionId);
         final Mono<VotingSession> votingSessionMono = repository.findById(votingSessionId);
         return votingSessionMono
-                .handle((VotingSession votingSession, SynchronousSink<VotingSession> sink) -> computeMemberVoteHandler(votingSession, memberVote, sink))
+//                .handle((VotingSession votingSession, SynchronousSink<VotingSession> sink) -> computeMemberVoteHandler(votingSession, memberVote, sink))
+                .flatMap(this::validateSession)
+                .flatMap(votingSession -> this.validateMemberVote(votingSession, memberVote))
                 .flatMap(votingSession -> this.repository.save(pushMemberVote(votingSession, memberVote)))
                 .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionNotFoundException(votingSessionId))));
     }
 
-    private void computeMemberVoteHandler(final VotingSession votingSession, final MemberVote memberVote, final SynchronousSink<VotingSession> sink) {
-        final boolean isOpened = LocalDateTime.now().isBefore(votingSession.getEnd());
-        if (isOpened) {
-            final Set<MemberVote> memberVotes = Optional.ofNullable(votingSession.getVotes()).orElse(Collections.emptySet());
-            final Set<String> membersAlreadyVoted = memberVotes.stream().map(MemberVote::getMemberId).collect(Collectors.toSet());
-            if (membersAlreadyVoted.contains(memberVote.getMemberId())) {
-                sink.error(new MemberVoteAlreadyComputedException(memberVote.getMemberId(), votingSession.getId()));
-            } else {
-                sink.next(votingSession);
-            }
-        } else {
-            sink.error(new VotingSessionClosedException(votingSession.getId(), votingSession.getEnd()));
-        }
+    private Mono<VotingSession> validateSession(final VotingSession votingSession) {
+        return Mono.just(votingSession)
+                .filter(vs -> LocalDateTime.now().isBefore(vs.getEnd()))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new VotingSessionClosedException(votingSession.getId(), votingSession.getEnd()))));
+    }
+
+    private Mono<VotingSession> validateMemberVote(final VotingSession votingSession, final MemberVote memberVote) {
+        return Mono.just(votingSession)
+                .filter(vs -> canMemberVote(vs, memberVote))
+                .switchIfEmpty(Mono.defer(() -> Mono.error(() -> new MemberVoteAlreadyComputedException(memberVote.getMemberId(), votingSession.getId()))));
+    }
+
+    private boolean canMemberVote(final VotingSession votingSession, final MemberVote memberVote) {
+        final Set<MemberVote> memberVotes = Optional.ofNullable(votingSession.getVotes()).orElse(Collections.emptySet());
+        final Set<String> membersAlreadyVoted = memberVotes.stream().map(MemberVote::getMemberId).collect(Collectors.toSet());
+        return !membersAlreadyVoted.contains(memberVote.getMemberId());
     }
 
     VotingSession pushMemberVote(final VotingSession votingSession, final MemberVote memberVote) {
