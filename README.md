@@ -19,13 +19,14 @@ se optou por utilizar o SpringBoot e assim agilizar o desenvolvimento já criand
 
 Programação reativa é um assunto que está em alta e a opção por usar neste projeto é justamente aproveitar o paradigma desde o início do desenvolvimento, preparando a aplicação para performar e escalar melhor.  
 
-O modelo de dados do exercício é bastante simples e ainda que tivesse alguma relação entre entidades, acredito que a opção foi utilizar banco NoSQL, por um olhar de trabalhar mais com dados consolidados e visando melhor desempenho com volumes maiores. 
+O modelo de dados do exercício é bastante simples e ainda que tivesse alguma relação entre entidades, acredito que a opção foi utilizar banco NoSQL, por um olhar de trabalhar mais com dados consolidados e visando melhor desempenho com volumes maiores.
+Além disso, o Spring Data também fornece a opção de trabalhar com o Mongo de forma reativa.
 
 ### Tecnologias
 
 * Java 8
 * Spring 5
-* Swagger
+* Swagger 3
 * MongoDB
 * Junit
 * AssertJ
@@ -120,14 +121,14 @@ java -jar build/libs/voting-service-0.0.1-SNAPSHOT.jar
 
 ### Tarefa Bônus 1 - Integração com sistemas externos
 
-A integração com o serviço externo foi implementado no branch `feat/bonus-1`.
-Foi utilizado `RestTemplate` na ocasião por já estar presente no projeto pelo ecossistema Spring.
+A integração com o serviço externo foi implementada na branch `feat/bonus-1`.
+Foi utilizado `WebClient` na ocasião por já estar presente no projeto pelo ecossistema Spring e por funcionar também de forma reativa.
 
 **Link p/ o PR**: https://github.com/eurafa/voting-service/pull/9
 
 ### Tarefa Bônus 2 - Mensageria e filas
 
-A integração com o serviço de mensageria foi implementado no branch `feat/bonus-2`.
+A integração com o serviço de mensageria foi implementad na branch `feat/bonus-2`.
 Foi utilizado RabbitMQ. Poderia ser ActiveMQ, Kafka, SQS ou outro mecanismo de filas.
 
 Link p/ o PR: https://github.com/eurafa/voting-service/pull/10
