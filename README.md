@@ -1,5 +1,8 @@
 # Voting Service
 
+[![Build Status](https://travis-ci.com/eurafa/voting-service.svg?branch=master)](https://travis-ci.com/eurafa/voting-service)
+[![codecov](https://codecov.io/gh/eurafa/voting-service/branch/master/graph/badge.svg)](https://codecov.io/gh/eurafa/voting-service)
+
 ## Introdução
 
 Esse projeto é uma prova, parte de um processo seletivo.
