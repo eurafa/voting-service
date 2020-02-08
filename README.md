@@ -34,17 +34,21 @@ Além disso, o Spring Data também fornece a opção de trabalhar com o Mongo de
 * Junit
 * AssertJ
 
-### API
+### Repositório
 
-A API pode ser acessada através da URL http://localhost:8080/swagger-ui.html onde é possível também fazer simulações e testes.
+Para clonar o repositório, execute:
 
-### Banco de dados
+```bash
+git clone https://github.com/eurafa/voting-service.git
+``` 
 
-Os dados são gravados no MongoDB, em suas respectivas *collections* no *database* chamado **coop**.
+Lembrando que se você usa chave SSH, pode clonar executando:
 
-### Executando a aplicação
+```bash
+git clone git@github.com:eurafa/voting-service.git
+```  
 
-#### Configurando o ambiente
+### Preparando o ambiente
 
 Lembrando que é pré-requisito que se tenha instalado previamente a **JDK** e o **Docker**.
 
@@ -62,35 +66,18 @@ e
 docker pull rabbitmq:3-management
 ```
 
-#### Inicializando o ambiente
-
-No diretório do projeto, está configurado o arquivo `docker-composer.yml`.
-
+No diretório do projeto, está configurado o arquivo `docker-composer.yml`.  
 Execute o comando abaixo para a montagem do ambiente:
 
 ```bash
 docker-compose up
 ```
 
-#### Inicializando a aplicação
+### Executando a aplicação
 
 Com os recursos do ambiente disponíveis, é possível subir a aplicação do _backend_.
 
-##### Clone
-
-Para clonar o repositório, execute:
-
-```bash
-git clone https://github.com/eurafa/voting-service.git
-``` 
-
-Lembrando que se você usa chave SSH, pode clonar executando:
-
-```bash
-git clone git@github.com:eurafa/voting-service.git
-```  
-
-##### Build
+#### Build
 
 Para compilar o projeto e gerar o artefato JAR, execute:
 
@@ -98,16 +85,16 @@ Para compilar o projeto e gerar o artefato JAR, execute:
 gradlew build
 ```  
 
-##### Testes
+#### Testes
 
-Os testes são executados também no build.
+Os testes são executados também no _build_.
 Para executar apenas os testes, rode o comando:
 
 ```bash
 gradlew test
 ```  
 
-##### Cobertura
+#### Cobertura
 
 [JaCoCo](https://www.eclemma.org/jacoco/) é a ferramenta de cobertura de código utilizada no projeto.
 É possível validar a cobertura de código no [Codecov](https://codecov.io/gh/eurafa/voting-service), uma vez que o repositório no Github já está integrado com o **Travis CI** que gera os relatórios do JaCoCo e então envia para o Codecov.
@@ -120,13 +107,21 @@ gradlew test jacocoTestReport
 
 Depois, basta abrir o relatório HTML gerado no seu navegador.
 
-##### Inicializando o serviço
+#### Inicializando o serviço
 
 Contando que você já tenha gerado o artefato JAR, basta executar agora: 
 
 ```bash
 java -jar build/libs/voting-service-0.0.1-SNAPSHOT.jar
 ```
+
+### API
+
+A API pode ser acessada através da URL http://localhost:8080/swagger-ui.html onde é possível também fazer simulações e testes.
+
+### Banco de dados
+
+Os dados são gravados no MongoDB, em suas respectivas *collections* no *database* chamado **coop**.
 
 ## Tarefas bônus
 
