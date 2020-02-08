@@ -33,4 +33,20 @@ test {
 	useJUnitPlatform()
 }
 
+jacocoTestReport {
+	reports {
+		html.enabled true
+		xml.enabled false
+		csv.enabled false
+	}
 
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, excludes: [
+				'**/**Application**.class',
+				'**/domain/**.class',
+				'**/**TO.class'
+			])
+		}))
+	}
+}
