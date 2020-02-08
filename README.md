@@ -22,7 +22,7 @@ se optou por utilizar o SpringBoot e assim agilizar o desenvolvimento já criand
 
 Programação reativa é um assunto que está em alta e a opção por usar neste projeto é justamente aproveitar o paradigma desde o início do desenvolvimento, preparando a aplicação para performar e escalar melhor.  
 
-O modelo de dados do exercício é bastante simples e ainda que tivesse alguma relação entre entidades, acredito que a opção foi utilizar banco NoSQL, por um olhar de trabalhar mais com dados consolidados e visando melhor desempenho com volumes maiores.
+O modelo de dados do exercício é bastante simples e ainda que tivesse alguma relação entre entidades, acredito que a opção foi utilizar banco NoSQL, por um olhar de trabalhar mais com dados consolidados e visando melhor desempenho com volumes maiores.  
 Além disso, o Spring Data também fornece a opção de trabalhar com o Mongo de forma reativa.
 
 ### Tecnologias
@@ -34,15 +34,7 @@ Além disso, o Spring Data também fornece a opção de trabalhar com o Mongo de
 * Junit
 * AssertJ
 
-### API
-
-A API pode ser acessada através da URL http://localhost:8080/swagger-ui.html onde é possível também fazer simulações e testes.
-
-### Banco de dados
-
-Os dados são gravados no MongoDB, em suas respectivas *collections* no *database* chamado **coop**.
-
-### Clone
+### Repositório
 
 Para clonar o repositório, execute:
 
@@ -56,34 +48,7 @@ Lembrando que se você usa chave SSH, pode clonar executando:
 git clone git@github.com:eurafa/voting-service.git
 ```  
 
-### Build
-
-Para compilar o projeto e gerar o artefato JAR, execute:
-
-```bash
-gradlew build
-```  
-
-### Testes
-
-Os testes são executados também no build.
-Para executar apenas os testes, rode o comando:
-
-```bash
-gradlew test
-```  
-
-Se quiser gerar os relatórios de cobertura do JaCoCo, execute:
-
-```bash
-gradlew test jacocoTestReport
-```  
-
-O arquivo do relatório irá aparecer no console.
-
-### Executando a aplicação
-
-#### Configurando o ambiente
+### Preparando o ambiente
 
 Lembrando que é pré-requisito que se tenha instalado previamente a **JDK** e o **Docker**.
 
@@ -101,24 +66,62 @@ e
 docker pull rabbitmq:3-management
 ```
 
-> Lembrando que o RabbitMQ é necessário apenas para a tarefa Bonus 2.
-
-No diretório do projeto, está configurado o arquivo `docker-composer.yml`.
-
+No diretório do projeto, está configurado o arquivo `docker-composer.yml`.  
 Execute o comando abaixo para a montagem do ambiente:
 
 ```bash
 docker-compose up
 ```
 
-#### Inicializando a aplicação
+### Executando a aplicação
 
 Com os recursos do ambiente disponíveis, é possível subir a aplicação do _backend_.
+
+#### Build
+
+Para compilar o projeto e gerar o artefato JAR, execute:
+
+```bash
+gradlew build
+```  
+
+#### Testes
+
+Os testes são executados também no _build_.
+Para executar apenas os testes, rode o comando:
+
+```bash
+gradlew test
+```  
+
+#### Cobertura
+
+[JaCoCo](https://www.eclemma.org/jacoco/) é a ferramenta de cobertura de código utilizada no projeto.
+É possível validar a cobertura de código no [Codecov](https://codecov.io/gh/eurafa/voting-service), uma vez que o repositório no Github já está integrado com o **Travis CI** que gera os relatórios do JaCoCo e então envia para o Codecov.
+
+Ainda se quiser gerar localmente os relatórios de cobertura do JaCoCo, execute:
+
+```bash
+gradlew test jacocoTestReport
+```  
+
+Depois, basta abrir o relatório HTML gerado no seu navegador.
+
+#### Inicializando o serviço
+
 Contando que você já tenha gerado o artefato JAR, basta executar agora: 
 
 ```bash
 java -jar build/libs/voting-service-0.0.1-SNAPSHOT.jar
 ```
+
+### API
+
+A API pode ser acessada através da URL http://localhost:8080/swagger-ui.html onde é possível também fazer simulações e testes.
+
+### Banco de dados
+
+Os dados são gravados no MongoDB, em suas respectivas *collections* no *database* chamado **coop**.
 
 ## Tarefas bônus
 
@@ -140,7 +143,7 @@ Link p/ o PR: https://github.com/eurafa/voting-service/pull/10
 
 Considerando que a aplicação fosse receber um volume grande de votos, algumas medidas podem ser adotadas.
 Uma delas é escalar subindo mais instâncias, com um _load balancer_ à frente, por exemplo em uma infra AWS.
-Ou também resolver no lado do cliente por exemplo com _frameworks_ da _stack_ do Netflix (Ribbon, Eureka, Zuul). 
+Ou também resolver no lado do cliente por exemplo com _frameworks_ da _stack_ do Netflix (Ribbon, Eureka, Zuul, Feign). 
 
 Não houve tempo hábil para implementar testes de performance. E testes de carga também seriam interessantes.
 Como sugestão, poderiam ser feitos _benchmarks_ usando JMH, integrar com JUnit, colocar no _pipeline_ dando um sentido de _continuous benchmark_.    
